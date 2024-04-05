@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+  datasource:
+    driver-class-name: ${ecom.datasource.driver-class-name}
+    url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${ecom.datasource.username}
+    password: ${ecom.datasource.password}
+
+
+
+
+
+mybatis:
+  #mapper????
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.ecom.entity
+  configuration:
+    #??????
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    Root: debug
+#    com:
+#      ecom:
+#        mapper: debug
+#        service: info
+#        controller: debug
+
+ecom:
+  jwt:
+    # ??jwt??????????
+    admin-secret-key: itcast
+    # ??jwt????
+    admin-ttl: 7200000
+    # ?????????????
+    admin-token-name: token
+    user-secret-key: qinlang
+    user-token-name: authentication
+    user-ttl: 7200000
