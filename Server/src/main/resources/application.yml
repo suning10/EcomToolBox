@@ -19,7 +19,7 @@ spring:
 mybatis:
   #mapper????
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.ecom.entity
+  type-aliases-package: com.ecom.pojo.entity
   configuration:
     #??????
     map-underscore-to-camel-case: true
@@ -44,3 +44,7 @@ ecom:
     user-secret-key: qinlang
     user-token-name: authentication
     user-ttl: 7200000
+
+  local-upload-folder:
+    path: ${ecom.local-upload-folder.path}
+

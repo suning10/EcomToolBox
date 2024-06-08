@@ -1,9 +1,9 @@
 package com.ecom.pojo.dto;
 
 import lombok.Data;
-
+import java.io.Serializable;
 @Data
-public class UserDTO {
+public class UserDTO implements Serializable{
 
     private int id;
 

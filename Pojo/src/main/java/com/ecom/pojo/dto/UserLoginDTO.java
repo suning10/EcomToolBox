@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @Schema(description = "login DTO")
-public class UserLoginDTO {
+public class UserLoginDTO implements Serializable {
 
 
     @Schema(description = "username")

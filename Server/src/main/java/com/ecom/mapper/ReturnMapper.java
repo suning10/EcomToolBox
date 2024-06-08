@@ -13,8 +13,14 @@ public interface ReturnMapper {
 
     List<Return> searchByRDO(SearchByRDODTO searchByRDODTO);
 
-    @Update("create Temporary table rdoList (rdo varchar(30))")
+
     void createTempRDOTable();
 
+    void truncateTempRDOTable();
+
     void insertrdoList (List<String> rdos);
+
+    List<Return> searchByPO(SearchByRDODTO searchByRDODTO);
+
+    void loadDataInline();
 }

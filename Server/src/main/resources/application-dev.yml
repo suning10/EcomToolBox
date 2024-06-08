@@ -3,12 +3,12 @@ ecom:
     driver-class-name: com.mysql.cj.jdbc.Driver
     host: localhost
     port: 3306
-    database: ecom
+    database: ecomtoolbox
     username: root
     password: 12345
 
   local-upload-folder:
-    path: "C:\\Users\\qinla\\Documents\\SpringBootDelivery\\day01\\upload"
+    path: "C:\\Users\\l.qin3\\Documents\\uploads"
 
   redis:
     host: localhost
