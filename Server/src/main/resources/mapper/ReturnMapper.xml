@@ -18,13 +18,22 @@
             )
     </update>
     <update id="loadDataInline">
+        LOAD DATA Local INFILE
+        #{path}
+        INTO TABLE `return_master`
+        FIELDS TERMINATED BY ','  ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE 1 LINES;
 
+    </update>
+    <update id="updateReturnMaster">
+        truncate table return_master;
 
     </update>
 
     <select id="searchByRDO" resultType="com.ecom.pojo.entity.Return">
 
-        select rdo_id,return_tracking_id,tracking_id,Sku,rma_number,
+        select po_lookup_key,rdo_id,return_tracking_id,tracking_id,Sku,rma_number,
                so_id,po_Id,rso_id,Channel,current_refund_status,
                label_generated_ts,refund_dt
         from return_master

@@ -22,5 +22,7 @@ public interface ReturnMapper {
 
     List<Return> searchByPO(SearchByRDODTO searchByRDODTO);
 
-    void loadDataInline();
+    void loadDataInline(String path);
+
+    void updateReturnMaster();
 }

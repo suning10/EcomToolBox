@@ -1,5 +1,7 @@
 server:
   port: 8080
+  tomcat:
+    max-swallow-size: 100MB
 
 spring:
   profiles:
@@ -8,9 +10,15 @@ spring:
     allow-circular-references: true
   datasource:
     driver-class-name: ${ecom.datasource.driver-class-name}
-    url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
     username: ${ecom.datasource.username}
     password: ${ecom.datasource.password}
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+
 
 
 
