@@ -1,6 +1,7 @@
 ecom:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    #driver-class-name: com.vertica
     host: localhost
     port: 3306
     database: ecomtoolbox

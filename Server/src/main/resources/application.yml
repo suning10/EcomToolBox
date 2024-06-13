@@ -5,12 +5,13 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: vertica
   main:
     allow-circular-references: true
   datasource:
     driver-class-name: ${ecom.datasource.driver-class-name}
-    url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
+    #url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
+    url: ${ecom.datasource.url}
     username: ${ecom.datasource.username}
     password: ${ecom.datasource.password}
   servlet:

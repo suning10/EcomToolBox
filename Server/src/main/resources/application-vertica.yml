@@ -1,0 +1,17 @@
+ecom:
+  datasource:
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.vertica.jdbc.Driver
+    url: 'jdbc:vertica://usdd-vertica.seacda.com:5431/verticadb'
+    username: l.qin3
+    password: l!PojUa3kh6
+
+  local-upload-folder:
+    path: "C:\\Users\\l.qin3\\Documents\\uploads"
+
+  redis:
+    host: localhost
+    port: 6379
+    password: 12345
+
+
