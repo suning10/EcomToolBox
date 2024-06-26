@@ -2,18 +2,25 @@ server:
   port: 8080
   tomcat:
     max-swallow-size: 100MB
+  address: 0.0.0.0
 
 spring:
   profiles:
-    active: vertica
+    active: test
   main:
     allow-circular-references: true
   datasource:
-    driver-class-name: ${ecom.datasource.driver-class-name}
-    #url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
-    url: ${ecom.datasource.url}
-    username: ${ecom.datasource.username}
-    password: ${ecom.datasource.password}
+    mysql:
+      driver-class-name: ${ecom.datasource.mysql.driver-class-name}
+      jdbcUrl: jdbc:mysql://${ecom.datasource.mysql.host}:${ecom.datasource.mysql.port}/${ecom.datasource.mysql.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
+      username: ${ecom.datasource.mysql.username}
+      password: ${ecom.datasource.mysql.password}
+    vertica:
+      driver-class-name: ${ecom.datasource.vertica.driver-class-name}
+      #url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
+      jdbcUrl: ${ecom.datasource.vertica.url}
+      username: ${ecom.datasource.vertica.username}
+      password: ${ecom.datasource.vertica.password}
   servlet:
     multipart:
       max-file-size: 100MB
@@ -27,7 +34,7 @@ spring:
 
 mybatis:
   #mapper????
-  mapper-locations: classpath:mapper/*.xml
+  mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.ecom.pojo.entity
   configuration:
     #??????

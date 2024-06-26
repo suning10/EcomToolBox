@@ -1,6 +1,6 @@
 package com.ecom.service.impl;
 
-import com.ecom.mapper.VerticaMapper;
+import com.ecom.mapper.vertica.VerticaMapper;
 import com.ecom.service.VerticaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,4 +16,6 @@ public class VerticaServiceImpl implements VerticaService {
     public List<String> testQuery() {
         return verticaMapper.test();
     }
+
+    public List<String> test() {return verticaMapper.test2();}
 }

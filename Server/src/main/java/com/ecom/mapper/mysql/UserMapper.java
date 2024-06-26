@@ -1,4 +1,4 @@
-package com.ecom.mapper;
+package com.ecom.mapper.mysql;
 
 import com.ecom.pojo.entity.User;
 import org.apache.ibatis.annotations.Mapper;
