@@ -41,8 +41,12 @@ public class MySQLConfiguration {
         final SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource());
 
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setMapUnderscoreToCamelCase(true);
+        sqlSessionFactoryBean.setConfiguration(configuration);
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:./mapper/mysql/*.xml"));
-        sqlSessionFactoryBean.setTypeAliasesPackage("com.ecom.pojo.entity");
+        //sqlSessionFactoryBean.setTypeAliasesPackage("com.ecom.pojo.entity");
+        ;
 
         return sqlSessionFactoryBean;
     }

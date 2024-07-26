@@ -4,11 +4,93 @@
 
     <select id="test2" resultType="java.lang.String">
         select rdo_id from edw.fact_returns_v4
-                      where return_shipped_ts > '2024-06-10' and
-                            return_shipped_ts < '2024-06-13' and
+                      where return_shipped_ts &gt; '2024-06-10' and
+                            return_shipped_ts &lt; '2024-06-13' and
                             is_active = 1 and
                             return_tracking_id is not null and
                              rdo_id is not null
 
+    </select>
+    <select id="queryByDeliveryDatePB" resultType="com.ecom.pojo.entity.PBTracking">
+        Select CONCAT('''',tracking_id) as tracking_id_long,tracking_id,product_id,po_id,fulfillment_delivery_do_id,pickedup_ts,expected_delivery_ts::Date,
+        fulfillment_carrier_id,shipment_status,ship_date_ts::Date,delivered_ts ,original_promise_delivery_ts::Date ,current_promise_delivery_ts::Date
+        from edw.fact_order_line_items foli
+        where is_active=1
+        and order_status not in ('initiated', 'accepted')
+        and fulfillment_carrier_id = 'pitneybowes'
+        and line_item_status not in ('cancelled', 'suppressed')
+        and physical_fulfiller_id = 'geodis'
+        and product_type = 'physical'
+        and delivered_ts > #{start}
+        and delivered_ts &lt; #{end};
+    </select>
+    <select id="queryByShipPB" resultType="com.ecom.pojo.entity.PBTracking">
+        Select CONCAT('''',tracking_id) as tracking_id_long,tracking_id,product_id,po_id,fulfillment_delivery_do_id,pickedup_ts,expected_delivery_ts::Date,
+                fulfillment_carrier_id,shipment_status,ship_date_ts::Date,delivered_ts ,original_promise_delivery_ts::Date ,current_promise_delivery_ts::Date
+        from edw.fact_order_line_items foli
+        where is_active=1
+          and order_status not in ('initiated', 'accepted')
+          and fulfillment_carrier_id = 'pitneybowes'
+          and line_item_status not in ('cancelled', 'suppressed')
+          and physical_fulfiller_id = 'geodis'
+          and product_type = 'physical'
+          and ship_date_ts > #{start}
+          and ship_date_ts &lt; #{end};
+
+    </select>
+    <select id="queryByDeliveryDatePBSummary" resultType="java.lang.Integer">
+        Select count (distinct tracking_id)
+        from edw.fact_order_line_items foli
+        where is_active=1
+          and order_status not in ('initiated', 'accepted')
+          and fulfillment_carrier_id = 'pitneybowes'
+          and line_item_status not in ('cancelled', 'suppressed')
+          and physical_fulfiller_id = 'geodis'
+          and product_type = 'physical'
+          and delivered_ts > #{start}
+          and delivered_ts &lt; #{end};
+
+    </select>
+    <select id="queryByShipDatePBSummary" resultType="java.lang.Integer">
+        Select count (distinct tracking_id)
+        from edw.fact_order_line_items foli
+        where is_active=1
+          and order_status not in ('initiated', 'accepted')
+          and fulfillment_carrier_id = 'pitneybowes'
+          and line_item_status not in ('cancelled', 'suppressed')
+          and physical_fulfiller_id = 'geodis'
+          and product_type = 'physical'
+          and ship_date_ts > #{start}
+          and ship_date_ts &lt; #{end};
+    </select>
+    <select id="queryUPSTracking" resultType="com.ecom.pojo.entity.UPSTracking">
+        select  distinct tracking_id,estimated_delivery ,event_status_code,event_status_description ,event_location_city ,event_date_time,
+                        shipped_ts,actual_delivered_ts ,origin_scan_ts ,out_for_delivery_ts , is_active
+        from edw.fact_ups_shipment_tracking_v4
+        where shipped_ts > '2024-04-01'
+        <if test="isActive == 1">
+            and is_active = 1
+        </if>
+          and tracking_id in
+        <foreach collection="trackingIds"  separator="," open="(" close=")" item="id" >
+            #{id}
+        </foreach>
+        order by tracking_id,event_date_time ;
+    </select>
+    <select id="queryFedExTracking" resultType="com.ecom.pojo.entity.FedExTracking">
+        select distinct tracking_id, is_active ,statusdetail_description ,statusdetail_ts ,
+                        service_type ,created_ts ,events_description ,event_ts ,
+                        status_city ,shipment_delay_city ,shipment_exception ,exception_description ,
+                        return_tracking_number_new
+        from edw.fact_fedex_shipment_tracking_v4
+        where created_ts >'2024-01-01'
+        <if test="isActive == 1">
+            and is_active = 1
+        </if>
+        and tracking_id in
+        <foreach collection="trackingIds"  separator="," open="(" close=")" item="id" >
+            #{id}
+        </foreach>
+        order by tracking_id,event_ts ;
     </select>
 </mapper>

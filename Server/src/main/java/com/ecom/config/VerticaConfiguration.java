@@ -41,6 +41,10 @@ public class VerticaConfiguration {
 
         final SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource());
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setMapUnderscoreToCamelCase(true);
+        sqlSessionFactoryBean.setConfiguration(configuration);
+        sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:./mapper/vertica/*.xml"));
 
         //sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:./mapper/vertica/*.xml"));
         //sqlSessionFactoryBean.setTypeAliasesPackage("com.ecom.pojo.entity");

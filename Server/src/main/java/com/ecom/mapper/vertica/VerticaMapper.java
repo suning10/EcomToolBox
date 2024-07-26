@@ -1,6 +1,10 @@
 package com.ecom.mapper.vertica;
 
+import com.ecom.pojo.entity.FedExTracking;
+import com.ecom.pojo.entity.PBTracking;
+import com.ecom.pojo.entity.UPSTracking;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -13,4 +17,16 @@ public interface VerticaMapper {
 
 
     List<String> test2();
+
+    List<PBTracking> queryByDeliveryDatePB(@Param("start") String start,@Param("end") String end);
+
+    List<PBTracking> queryByShipPB(@Param("start") String start, @Param("end") String end);
+
+    int queryByDeliveryDatePBSummary(String start, String end);
+
+    int queryByShipDatePBSummary(String start, String end);
+
+    List<UPSTracking> queryUPSTracking(List<String> trackingIds, int isActive);
+
+    List<FedExTracking> queryFedExTracking(@Param("trackingIds") List<String> lowerCaseTrackingIds, @Param("isActive")int isActive);
 }
