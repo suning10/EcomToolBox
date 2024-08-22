@@ -93,4 +93,37 @@
         </foreach>
         order by tracking_id,event_ts ;
     </select>
+
+    <select id="queryEDD" resultType="com.ecom.pojo.entity.EDD">
+        select foli.po_id ,fulfillment_delivery_do_id as do_id ,foli.shipped_sku,foli.shipping_amt,shipped_qty ,foli.physical_fulfiller_id  ,UPPER(tracking_id) as tracking ,
+               current_promise_delivery_ts::Date as EDD,
+                fgo.entry_ts as order_entry_date,fgo.updated_ts as ship_scan_date,foli.delivered_ts::Date,foli.fulfillment_carrier_id,
+                foli.order_ts_est ,foli.sales_price,foli.list_price ,foli.line_item_status ,foli.order_status ,foli.cancellation_reason ,foli.cancellation_status
+
+        from edw.fact_order_line_items foli
+        left join edw.fact_geodis_orders fgo
+        on foli.fulfillment_delivery_do_id = fgo.fulfillment_po_id
+          where foli.is_active =1 and fgo.is_active = 1
+          <if test="flag == 0">
+              and foli.po_id in
+                  <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                        #{id}
+                  </foreach>
+          </if>
+        <if test="flag == 1">
+            and foli.fulfillment_delivery_do_id in
+            <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        </if>
+        <if test="flag == 2">
+            and foli.tracking_id in
+            <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        </if>
+
+        and physical_fulfiller_id = 'geodis'
+          and product_type = 'physical'
+    </select>
 </mapper>

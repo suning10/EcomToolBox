@@ -1,7 +1,10 @@
 package com.ecom.service.impl;
 
+import com.ecom.common.enumeration.EDDSearchBy;
 import com.ecom.mapper.vertica.VerticaMapper;
+import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
+import com.ecom.pojo.entity.EDD;
 import com.ecom.pojo.entity.FedExTracking;
 import com.ecom.pojo.entity.PBTracking;
 import com.ecom.pojo.entity.UPSTracking;
@@ -69,5 +72,22 @@ public class VerticaServiceImpl implements VerticaService {
         return verticaMapper.queryFedExTracking(lowerCaseTrackingIds,parcelTrackingDTO.getIsActive());
     }
 
-    public List<String> test() {return verticaMapper.test2();}
+    @Override
+    public List<EDD> queryEDD(EDDDTO eDDdto) {
+
+        if(eDDdto.getSearchFlag().equals("PO")) {
+            return verticaMapper.queryEDD(eDDdto.getIdList(),0);
+        }
+
+        if(eDDdto.getSearchFlag().equals("DO")) {
+            return verticaMapper.queryEDD(eDDdto.getIdList(),1);
+        }
+        if(eDDdto.getSearchFlag().equals("TRACKING")) {
+            return verticaMapper.queryEDD(eDDdto.getIdList(),2);
+        }
+
+        return null;
+    }
+
+
 }

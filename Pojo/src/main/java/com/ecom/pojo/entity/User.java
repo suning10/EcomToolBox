@@ -21,13 +21,17 @@ public class User implements Serializable {
 
     private String username;
 
-    private String firstname;
-
-    private String lastname;
+    private String name;
 
     private String password;
 
-    private int status;
+    private String phone;
+
+    private String sex;
+
+    private String idNumber;
+
+    private Integer status;
 
     @JsonFormat(pattern = "MM-dd-yyyy HH:mm:ss")
     private LocalDateTime createTime;
@@ -39,7 +43,4 @@ public class User implements Serializable {
 
     private int updateUser;
 
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
 }

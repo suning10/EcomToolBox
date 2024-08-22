@@ -2,7 +2,7 @@ server:
   port: 80
   tomcat:
     max-swallow-size: 100MB
-  address: 105.52.55.57
+  address: 0.0.0.0
 
 spring:
   profiles:
@@ -12,7 +12,7 @@ spring:
   datasource:
     mysql:
       driver-class-name: ${ecom.datasource.mysql.driver-class-name}
-      jdbcUrl: jdbc:mysql://${ecom.datasource.mysql.host}:${ecom.datasource.mysql.port}/${ecom.datasource.mysql.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
+      jdbcUrl: jdbc:mysql://${ecom.datasource.mysql.host}:${ecom.datasource.mysql.port}/${ecom.datasource.mysql.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true&OPT_LOCAL_INFILE=1
       username: ${ecom.datasource.mysql.username}
       password: ${ecom.datasource.mysql.password}
     vertica:
@@ -20,7 +20,10 @@ spring:
       #url: jdbc:mysql://${ecom.datasource.host}:${ecom.datasource.port}/${ecom.datasource.database}?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
       jdbcUrl: ${ecom.datasource.vertica.url}
       username: ${ecom.datasource.vertica.username}
-      password: ${ecom.datasource.vertica.password}
+      #password: ${ecom.datasource.vertica.password}
+      password: l#e8nIzxa0S
+    hikari:
+      maximum-pool-size: 3
   servlet:
     multipart:
       max-file-size: 100MB
@@ -52,7 +55,7 @@ logging:
 ecom:
   jwt:
     # ??jwt??????????
-    admin-secret-key: itcast
+    admin-secret-key: samsung
     # ??jwt????
     admin-ttl: 7200000
     # ?????????????
@@ -60,6 +63,7 @@ ecom:
     user-secret-key: qinlang
     user-token-name: authentication
     user-ttl: 7200000
+    enable: 1
 
   local-upload-folder:
     path: ${ecom.local-upload-folder.path}

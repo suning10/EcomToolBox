@@ -1,5 +1,6 @@
 package com.ecom.mapper.vertica;
 
+import com.ecom.pojo.entity.EDD;
 import com.ecom.pojo.entity.FedExTracking;
 import com.ecom.pojo.entity.PBTracking;
 import com.ecom.pojo.entity.UPSTracking;
@@ -29,4 +30,11 @@ public interface VerticaMapper {
     List<UPSTracking> queryUPSTracking(List<String> trackingIds, int isActive);
 
     List<FedExTracking> queryFedExTracking(@Param("trackingIds") List<String> lowerCaseTrackingIds, @Param("isActive")int isActive);
+
+    /*
+    0: po
+    1: do
+    2: tracking
+     */
+    List<EDD> queryEDD(@Param("ids")List<String> idList, @Param("flag") int flag);
 }

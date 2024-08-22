@@ -5,7 +5,7 @@ ecom:
       driver-class-name: com.vertica.jdbc.Driver
       url: 'jdbc:vertica://usdd-vertica.seacda.com:5431/verticadb'
       username: l.qin3
-      password: l!PojUa3kh6
+      password: l#e8nIzxa0S
     mysql:
       driver-class-name: com.mysql.cj.jdbc.Driver
       host: localhost

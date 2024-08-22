@@ -5,6 +5,7 @@ import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.ReturnMapper;
 import com.ecom.pojo.dto.SearchByRDODTO;
 import com.ecom.pojo.entity.Return;
+import com.ecom.pojo.entity.ReturnSimple;
 import com.ecom.service.ReturnSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,6 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
     }
 
     @Override
-    @Transactional
     public void upload(MultipartFile file) {
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")) ;
 
@@ -53,6 +53,32 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
         String path = localFolderUtil.upload(file,filename);
         returnMapper.updateReturnMaster();
         returnMapper.loadDataInline(path);
+
+    }
+
+    @Override
+    public List<ReturnSimple> getByRDOSimple(SearchByRDODTO searchByRDODTO) {
+        // use temp table to hold the value
+        returnMapper.createTempRDOTable();
+        returnMapper.truncateTempRDOTable();
+        returnMapper.insertrdoList(searchByRDODTO.getRdoList());
+        List<ReturnSimple> returnResult = returnMapper.searchByRDOSimple(searchByRDODTO);
+
+        return returnResult;
+    }
+
+    @Override
+    public void uploadSimple(MultipartFile file) {
+        String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")) ;
+
+        if(!extension.equals(".csv")) throw new ExtensionNotCorrectException("please upload correct file -- csv file is accepted");
+        String filename =  "ageReturnSimple.csv";
+        String path = localFolderUtil.upload(file,filename);
+        //update stgTable
+        returnMapper.updateStgTable();
+        returnMapper.loadDataInlineStg(path);
+        //load into actual table
+        returnMapper.loadDataReturnSearch();
 
     }
 }

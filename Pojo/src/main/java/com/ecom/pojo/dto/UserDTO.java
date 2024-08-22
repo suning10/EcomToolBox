@@ -5,13 +5,14 @@ import java.io.Serializable;
 @Data
 public class UserDTO implements Serializable{
 
-    private int id;
 
     private String username;
 
-    private String firstname;
-
-    private String lastname;
+    private String name;
 
     private String password;
+
+    private String phone;
+
+    private String sex;
 }

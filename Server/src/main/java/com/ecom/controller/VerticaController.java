@@ -1,7 +1,9 @@
 package com.ecom.controller;
 
 import com.ecom.common.result.Result;
+import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
+import com.ecom.pojo.entity.EDD;
 import com.ecom.pojo.entity.FedExTracking;
 import com.ecom.pojo.entity.PBTracking;
 import com.ecom.pojo.entity.UPSTracking;
@@ -76,6 +78,15 @@ public class VerticaController {
     public Result<List<FedExTracking>> getFedEx(@RequestBody ParcelTrackingDTO parcelTrackingDTO){
 
         List<FedExTracking> resultSet = verticaService.queryFedEx(parcelTrackingDTO);
+
+        return Result.success(resultSet);
+    }
+
+    @PostMapping("/edd")
+    @Operation(summary = "EDD")
+    public Result<List<EDD>> getEdd(@RequestBody EDDDTO eDDdto){
+
+        List<EDD> resultSet = verticaService.queryEDD(eDDdto);
 
         return Result.success(resultSet);
     }

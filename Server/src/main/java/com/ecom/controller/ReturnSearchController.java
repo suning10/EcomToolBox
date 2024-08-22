@@ -6,6 +6,7 @@ import com.ecom.common.result.Result;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.pojo.dto.SearchByRDODTO;
 import com.ecom.pojo.entity.Return;
+import com.ecom.pojo.entity.ReturnSimple;
 import com.ecom.service.ReturnSearchService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,5 +59,23 @@ public class ReturnSearchController {
 
         return Result.success();
     }
+
+    @PostMapping("/byRDOSimple")
+    public Result<List<ReturnSimple>> searchByRDOSimple(@RequestBody SearchByRDODTO searchByRDODTO){
+
+        List<ReturnSimple> returnResult = returnSearchService.getByRDOSimple(searchByRDODTO);
+
+        return Result.success(returnResult);
+    }
+
+    @PostMapping("/uploadSimple")
+    public Result uploadSimple(MultipartFile file){
+
+        returnSearchService.uploadSimple(file);
+
+        return Result.success();
+    }
+
+
 
 }

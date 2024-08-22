@@ -18,7 +18,7 @@
             )
     </update>
     <update id="loadDataInline">
-        LOAD DATA Local INFILE
+        LOAD DATA local INFILE
         #{path}
         INTO TABLE `return_master`
         FIELDS TERMINATED BY ','  ENCLOSED BY '"'
@@ -29,6 +29,17 @@
     <update id="updateReturnMaster">
         truncate table return_master;
 
+    </update>
+    <update id="updateStgTable">
+        truncate table stg_return_search_simple;
+    </update>
+    <update id="loadDataInlineStg">
+        LOAD DATA local INFILE
+        #{path}
+        INTO TABLE `stg_return_search_simple`
+        FIELDS TERMINATED BY ','  ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE 1 LINES;
     </update>
 
     <select id="searchByRDO" resultType="com.ecom.pojo.entity.Return">
@@ -47,6 +58,13 @@
         from return_master
         join rdoList
         on lower(return_master.po_lookup_key) = lower(rdoList.rdo)
+
+    </select>
+    <select id="searchByRDOSimple" resultType="com.ecom.pojo.entity.ReturnSimple">
+        select return_search_simple.*
+        from return_search_simple
+        join rdoList
+        on return_search_simple.rdo = rdoList.rdo
 
     </select>
 </mapper>
