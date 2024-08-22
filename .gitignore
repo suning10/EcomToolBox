@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+/Server/src/main/resources/application.yml
+/Server/src/main/resources/application-dev.yml
+/Server/src/main/resources/application-original.yml
+/Server/src/main/resources/application-test.yml
+/Server/src/main/resources/application-vertica.yml
