@@ -1,17 +1,21 @@
 package com.ecom.service.impl;
 
 import com.ecom.common.enumeration.EDDSearchBy;
+import com.ecom.common.exception.OutOfRangeException;
+import com.ecom.common.result.Result;
 import com.ecom.mapper.vertica.VerticaMapper;
 import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
-import com.ecom.pojo.entity.EDD;
-import com.ecom.pojo.entity.FedExTracking;
-import com.ecom.pojo.entity.PBTracking;
-import com.ecom.pojo.entity.UPSTracking;
+import com.ecom.pojo.entity.*;
 import com.ecom.service.VerticaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -87,6 +91,19 @@ public class VerticaServiceImpl implements VerticaService {
         }
 
         return null;
+    }
+
+    @Override
+    public List<OriginScanUPS> originScanUPS(String start, String end) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(start,dateTimeFormatter);
+        LocalDate endDate = LocalDate.parse(end,dateTimeFormatter);
+        //check if date range is too wide
+        long days = ChronoUnit.DAYS.between(startDate,endDate);
+        if(days > 30) throw new OutOfRangeException("Range Too Wide");
+
+        return verticaMapper.queryOriginScanUPS(start,end);
     }
 
 

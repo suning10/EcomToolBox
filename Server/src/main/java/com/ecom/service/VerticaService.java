@@ -2,10 +2,7 @@ package com.ecom.service;
 
 import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
-import com.ecom.pojo.entity.EDD;
-import com.ecom.pojo.entity.FedExTracking;
-import com.ecom.pojo.entity.PBTracking;
-import com.ecom.pojo.entity.UPSTracking;
+import com.ecom.pojo.entity.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,4 +25,6 @@ public interface VerticaService {
     List<FedExTracking> queryFedEx(ParcelTrackingDTO parcelTrackingDTO);
 
     List<EDD> queryEDD(EDDDTO eDDdto);
+
+    List<OriginScanUPS> originScanUPS(String start, String end);
 }

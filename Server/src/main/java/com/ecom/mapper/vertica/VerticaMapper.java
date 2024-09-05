@@ -1,9 +1,6 @@
 package com.ecom.mapper.vertica;
 
-import com.ecom.pojo.entity.EDD;
-import com.ecom.pojo.entity.FedExTracking;
-import com.ecom.pojo.entity.PBTracking;
-import com.ecom.pojo.entity.UPSTracking;
+import com.ecom.pojo.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -37,4 +34,6 @@ public interface VerticaMapper {
     2: tracking
      */
     List<EDD> queryEDD(@Param("ids")List<String> idList, @Param("flag") int flag);
+
+    List<OriginScanUPS> queryOriginScanUPS(@Param("start") String start, @Param("end") String end);
 }

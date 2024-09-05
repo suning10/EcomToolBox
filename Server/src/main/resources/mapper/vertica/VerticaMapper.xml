@@ -126,4 +126,26 @@
         and physical_fulfiller_id = 'geodis'
           and product_type = 'physical'
     </select>
+    <select id="queryOriginScanUPS" resultType="com.ecom.pojo.entity.OriginScanUPS">
+        select DISTINCT  upper(foli.po_id) as po_id,fulfillment_delivery_do_id as do_id ,foli.physical_fulfiller_id  ,UPPER(foli.tracking_id) as tracking ,
+        current_promise_delivery_ts::Date as EDD,
+        fgo.entry_ts as order_entry_date,fgo.updated_ts as ship_scan_date,fustv.origin_scan_ts - interval '5 hour' as origin_scan,HOUR(fustv.origin_scan_ts - interval '5 hour') as origin_scan_hour,
+        out_for_delivery_ts - interval '5 hour' as out_for_delivery_scan,
+        DATEDIFF('day',fgo.updated_ts,fustv.origin_scan_ts - interval '5 hour') as diff,delivered_ts::Date
+        from edw.fact_order_line_items foli
+        left join edw.fact_geodis_orders fgo
+        on foli.fulfillment_delivery_do_id = fgo.fulfillment_po_id
+        left join edw.fact_ups_shipment_tracking_v4 fustv on
+        foli.tracking_id = fustv.tracking_id
+        where foli.is_active =1 and fgo.is_active = 1  and fustv.is_active = 1
+        and DATEDIFF('day',fgo.updated_ts,fustv.origin_scan_ts - interval '5 hour') > 0
+        and (DATE_PART('hour',fgo.updated_ts) &lt; 19
+        and DATEDIFF('day',fgo.updated_ts,fustv.origin_scan_ts - interval '5 hour') > 0)
+        and HOUR(fustv.origin_scan_ts - interval '5 hour') >6
+        and physical_fulfiller_id = 'geodis'
+        and product_type = 'physical'
+        and ship_date_ts >= #{start}
+          and ship_date_ts &lt;= #{end}
+        and foli.fulfillment_carrier_id  = 'ups';
+    </select>
 </mapper>

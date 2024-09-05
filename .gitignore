@@ -36,3 +36,4 @@ build/
 /Server/src/main/resources/application-original.yml
 /Server/src/main/resources/application-test.yml
 /Server/src/main/resources/application-vertica.yml
+/vertica-jdbc-9.1.1-0.jar
