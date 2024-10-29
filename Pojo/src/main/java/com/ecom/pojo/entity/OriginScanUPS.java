@@ -24,5 +24,6 @@ public class OriginScanUPS implements Serializable {
     private String outForDeliveryScan;
     private String diff;
     private String deliveredTs;
+    private String estimatedDelivery;
 
 }

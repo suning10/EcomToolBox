@@ -36,4 +36,6 @@ public interface VerticaMapper {
     List<EDD> queryEDD(@Param("ids")List<String> idList, @Param("flag") int flag);
 
     List<OriginScanUPS> queryOriginScanUPS(@Param("start") String start, @Param("end") String end);
+
+    List<OriginScanUPS> queryShipNotTenderUPS(@Param("start") String start, @Param("end") String end);
 }

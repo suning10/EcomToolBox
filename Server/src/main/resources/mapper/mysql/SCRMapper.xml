@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ecom.mapper.mysql.SCRMapper">
+    <insert id="insert">
+        insert into scrraw
+        SELECT
+            `stagingscrraw`.`Material`,
+            `stagingscrraw`.`Description`,
+            sum(replace(`stagingscrraw`.`QII(NERP)`,',','')),
+            sum(replace(`stagingscrraw`.`QII(3PL)`,',','')),
+            sum(replace(`stagingscrraw`.`QIIGAP`,',','')),
+            sum(replace( `stagingscrraw`.`UNS(NERP)`,',','')),
+            sum(replace(`stagingscrraw`.`UNS(3PL)`,',','')),
+            sum(replace(`stagingscrraw`.`UNSGAP`,',','')),
+            sum(replace(`stagingscrraw`.`BLK(NERP)`,',','')),
+            sum(replace(`stagingscrraw`.`BLK(3PL)`,',','')),
+            sum(replace( `stagingscrraw`.`BLKGAP`,',','')),
+            sum(replace(`stagingscrraw`.`Total(NERP)`,',','')),
+            sum(replace(`stagingscrraw`.`Total(3PL)`,',','')),
+            sum(replace(`stagingscrraw`.`TotGap`,',','')),
+            `stagingscrraw`.`Plnt`,
+            `stagingscrraw`.`SLoc`,
+            `stagingscrraw`.`valType`,
+            `stagingscrraw`.`Date`
+        FROM `stagingscrraw`
+        group by Material,SLoc,`Plnt`,valType,`Date`,`Description`;
+    </insert>
+    <insert id="insertMB51">
+        insert into scr_nerp
+        SELECT `material`,
+               `plnt`,
+               `sloc`,
+               `Mvt`,
+               `movement_type_text`,
+               `special_stock`,
+               `reference`,
+               `mat_doc`,
+               `post_date`,
+               `post_time`,
+               `entry_date`,
+               sum(`qty`) as qty,
+               `username`,
+               `doc_header`,
+               `val_type`
+        FROM `stg_scr_nerp`
+        group by
+            `material`,
+            `plnt`,
+            `sloc`,
+            `Mvt`,
+            `movement_type_text`,
+            `special_stock`,
+            `reference`,
+            `mat_doc`,
+            `post_date`,
+            `post_time`,
+            `entry_date`,
+            `username`,
+            `doc_header`,
+            `val_type`
+        ;
+    </insert>
+    <insert id="insertItemActivity">
+        insert into scr_item_activity
+        select *,
+               if(transaction_type = 'Shipped order' and left(origin_ship_name,3) = 'DOA','WR3E',
+                  if(transaction_type = 'Shipped order' and lower(left(po,1)) = 'q','WC3E',
+                     if(transaction_type = 'Shipped order'  or left(inventory_status,2) = 'AV' or left(inventory_status,2) = 'OH' or left(inventory_status,2) = 'RH' or left(inventory_status,2) = 'RT','WC1E',
+                        if(left(inventory_status,2) = 'CP', 'WR2E',
+                            if(left(inventory_status,2) = 'SC', 'WR3E',
+                                if(left(inventory_status,2) = 'DS', 'WC3E','Unknown')))))) as slot
+        from stg_scr_item_activity;
+
+
+    </insert>
+    <update id="updateStgTable">
+        LOAD DATA local INFILE
+        #{path}
+        INTO TABLE ${tableName}
+        FIELDS TERMINATED BY '\t' ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE #{skip} LINES;
+    </update>
+    <update id="truncateTable">
+        truncate table ${tableName};
+    </update>
+    <update id="updateComma">
+        update ${tableName}
+        set qty = REPLACE(CONCAT(qty), ',', '');
+    </update>
+
+
+    <select id="querySKUComparison" resultType="com.ecom.pojo.entity.SKUComparison">
+        select a.`reference`,a.item,a.transaction_type,a.transaction_date, a.po,a.inventory_status,
+               b.mvt,b.post_date,b.post_time,b.entry_date,a.qty as synapse_qty,b.qty as nerp_qty,b.doc_header,b.val_type
+        from scr_item_activity a
+        left join scr_nerp b
+        on a.reference = b.reference
+        and  a.item = b.material
+        and a.slot = b.sloc
+        where a.`reference` != '' and b.`reference` != ''
+        and b.sloc = #{sloc}
+        and a.item = #{sku} and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
+        and a.qty - b.qty != 0 ;
+    </select>
+    <select id="postSKUDetailNERPAdj" resultType="com.ecom.pojo.entity.SKUActivityNERP">
+
+        select * from scr_nerp
+        where `reference` = '' and
+            sloc = #{sloc} and
+            material = #{sku} and
+            str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
+            ;
+    </select>
+    <select id="postSKUDetailSynapseAdj" resultType="com.ecom.pojo.entity.SKUActivitySynapse">
+        select * from scr_item_activity
+        where `reference` = '' and
+            slot = #{sloc} and
+            item = #{sku} and
+            str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end};
+    </select>
+    <select id="postSKUSummarySynapseAdj" resultType="com.ecom.pojo.entity.SKUSummaryByMvmType">
+        select item,inventory_status as movement ,'Synapse' as source ,transaction_date as `date`,sum(qty) as qty from scr_item_activity
+        where `reference` = '' and
+            slot = #{sloc} and
+            item = #{sku} and
+            str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
+        group by item,inventory_status,transaction_date;
+    </select>
+    <select id="postSKUSummaryNERPAdj" resultType="com.ecom.pojo.entity.SKUSummaryByMvmType">
+        select material as item, mvt as movement,'NERP' as source,post_date as `date` ,sum(qty)  as qty from scr_nerp
+        where `reference` = '' and
+            sloc = #{sloc} and
+            material = #{sku} and
+            str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
+        group by material, mvt,post_date;
+    </select>
+    <select id="postSKUComparisonMissingNerp" resultType="com.ecom.pojo.entity.SKUActivityNERP">
+        select b.* from scr_item_activity a
+        right join scr_nerp b
+        on a.`reference` = b. `reference`
+           and a.item = b.material
+           and a.slot = b.sloc
+        where b.reference !=''
+        and b.sloc = #{sloc}
+        and b.material = #{sku} and str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
+        and a.item is null;
+    </select>
+    <select id="postSKUComparisonMissingSynapse" resultType="com.ecom.pojo.entity.SKUActivitySynapse">
+        select a.* from scr_item_activity a
+        left join scr_nerp b
+        on a.`reference` = b. `reference`
+        and a.item = b.material
+        and a.slot = b.sloc
+        where a.`reference` != ''
+        and a.sloc = #{sloc}
+        and a.item = #{sku} and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
+        and b.qty is null;
+    </select>
+    <select id="getSCRReportSummary" resultType="com.ecom.pojo.entity.ScrReportSummary">
+        select SLoc as sloc,
+        cast(sum(abs(groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0))) as decimal(10,2)) as absolute_gap_cost,
+        cast(sum((groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0))) as decimal(10,2)) as net_gap_cost,
+        sum(abs(groupGap) ) as absolute_gap,
+        sum(groupGap) as `net_gap`,
+        cast(sum(if(abs(groupGap)> 0,1,0))/count(1) * 100 as decimal(10,2)) as `sku_with_error`,
+        sum(if(abs(groupGap) > 0,1,0)) as `sku_with_error_number`,
+        cast(sum(if(groupGap > 0, groupGap * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0)),0)) as decimal(10,2)) as `nerp_overage`,
+        cast(sum(if(groupGap &lt; 0,groupGap * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0)),0)) as decimal(10,2)) as `synapse_overage`
+        from (select Material, Sloc,`Date`,sum(`Total(NERP)` - `Total(3PL)`) as groupGap
+        from scrraw
+        group by Material, Sloc,`Date`) a
+        left join
+        price b
+        on a.Material = b.Material
+        where str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval #{date} Day)
+        group by Sloc;
+
+    </select>
+    <select id="getSCRReportGap" resultType="com.ecom.pojo.entity.ScrReportGap">
+        select a.Material as material ,a.Description as description ,`Total(3PL)` as `synapse_total`,`Total(NERP)` as `nerp_total`, TotGap as total_gap, TotGap * ifnull(b.mapPrice,0) as abs_map_value,
+               `Total(NERP)` - `Total(3PL)` as net_gap, (`Total(NERP)` - `Total(3PL)`) * ifnull(b.mapPrice,0) as net_gap_map_value,sloc
+        from scrraw a
+                 left join
+             price b
+             on a.Material = b.Material
+        where SLoc = #{sloc} and TotGap > 0 and str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval #{date} Day)
+        order by TotGap desc;
+    </select>
+    <select id="getSCRReportGapWR2E" resultType="com.ecom.pojo.entity.ScrReportGap">
+        select a.Material as material ,a.Description as description ,`Total(3PL)` as `synapse_total`,`Total(NERP)` as `nerp_total`, TotGap as total_gap, TotGap * ifnull(b.mapPrice/2,0) as abs_map_value,
+               `Total(NERP)` - `Total(3PL)` as net_gap, (`Total(NERP)` - `Total(3PL)`) * ifnull(b.mapPrice/2,0) as net_gap_map_value,sloc
+        from scrraw a
+                 left join
+             price b
+             on a.Material = b.Material
+        where SLoc = 'WR2E' and str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval #{date} Day)
+          and a.Material in
+              (select Material from (
+                                        select Material,sum(`Total(NERP)` - `Total(3PL)`) as groupGap
+                                        from scrraw
+                                        where SLoc = 'WR2E' and str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval #{date} Day)
+                                        group by Material) x
+               where groupGap != 0 )
+        order by TotGap desc
+        ;
+    </select>
+    <select id="getSCRReportDetailWR2E" resultType="com.ecom.pojo.entity.ScrReportRaw">
+        select a.material as material,
+               `Description` as description,
+               `QII(NERP)` as qi_nerp,
+               `QII(3PL)` as qi3pl,
+               `QIIGAP` as qi_gap,
+               `UNS(NERP)`as uns_nerp,
+               `UNS(3PL)` as uns3pl,
+               `UNSGAP` as uns_gap,
+               `BLK(NERP)` as blk_nerp,
+               `BLK(3PL)` as blk3pl,
+               `BLKGAP` as blkGap,
+               `Total(NERP)` as total_nerp,
+               `Total(3PL)` as total3pl,
+               `TotGap` as total_gap,
+               `SLoc` as sloc,
+               `valType` as val_type,
+               `Date` as `date`,
+               ifnull(b.mapPrice/2 * TotGap ,'999') as `absolute_gap_value`
+        from scrraw a
+        left join price b
+        on a.Material = b.Material
+        where SLoc = 'WR2E'  and
+        str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval #{date} Day)
+        order by TotGap desc
+        ;
+    </select>
+    <select id="getSCRReportDetil" resultType="com.ecom.pojo.entity.ScrReportRaw">
+        select a.material as material,
+               `Description` as description,
+               `QII(NERP)` as qi_nerp,
+               `QII(3PL)` as qi3pl,
+               `QIIGAP` as qi_gap,
+               `UNS(NERP)`as uns_nerp,
+               `UNS(3PL)` as uns3pl,
+               `UNSGAP` as uns_gap,
+               `BLK(NERP)` as blk_nerp,
+               `BLK(3PL)` as blk3pl,
+               `BLKGAP` as blkGap,
+               `Total(NERP)` as total_nerp,
+               `Total(3PL)` as total3pl,
+               `TotGap` as total_gap,
+               `SLoc` as sloc,
+               `valType` as val_type,
+               `Date` as `date`,
+               ifnull(cast(if(a.valType = 'C',b.mapPrice/2,b.mapPrice) * TotGap  as decimal(10,2)),'999')  as `absolute_gap_value`
+        from scrraw a
+                 left join price b
+                           on a.Material = b.Material
+        where SLoc = #{sloc}  and
+                str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval #{date} Day)
+        order by TotGap desc;
+    </select>
+    <select id="getSCRReportDOD" resultType="com.ecom.pojo.entity.ScrReportDod">
+        select Material as material,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 15 Day),TotGap,0)) as `day15` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 14 Day),TotGap,0)) as `day14` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 13 Day),TotGap,0)) as `day13` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 12 Day),TotGap,0)) as `day12` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 11 Day),TotGap,0)) as `day11` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 10 Day),TotGap,0)) as `day10` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 9 Day),TotGap,0)) as `day9` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 8 Day),TotGap,0)) as `day8` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 7 Day),TotGap,0)) as `day7` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 6 Day),TotGap,0)) as `day6` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 5 Day),TotGap,0)) as `day5` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 4 Day),TotGap,0)) as `day4` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 3 Day),TotGap,0)) as `day3` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 2 Day),TotGap,0)) as `day2` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 1 Day),TotGap,0)) as `day1` ,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = current_date(),TotGap,0))  as `today`,
+               sum(if( str_to_date(`Date`,'%m/%d/%Y') = current_date(),TotGap,0)) - sum(if( str_to_date(`Date`,'%m/%d/%Y') = date_sub(current_date(), Interval 1 Day),TotGap,0)) as `dod`
+        from scrraw
+        where SLoc = #{sloc} and TotGap > 0
+        group by Material;
+
+    </select>
+    <select id="getStgDate" resultType="java.lang.String">
+        select min(${dateName}) from ${tableName}
+    </select>
+    <select id="getTableDate" resultType="java.lang.Integer">
+        select count(1) from ${tableName}
+        where ${dateName} = #{stgDate}
+    </select>
+</mapper>

@@ -23,11 +23,18 @@ spring:
       #password: ${ecom.datasource.vertica.password}
       password: l#e8nIzxa0S
     hikari:
-      maximum-pool-size: 3
+      maximum-pool-size: 2
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+  mail:
+    host: m.sea.samsung.com
+    port: 25
+    auth: false
+
+
+
 
 
 

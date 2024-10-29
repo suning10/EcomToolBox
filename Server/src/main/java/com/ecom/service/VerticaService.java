@@ -27,4 +27,6 @@ public interface VerticaService {
     List<EDD> queryEDD(EDDDTO eDDdto);
 
     List<OriginScanUPS> originScanUPS(String start, String end);
+
+    List<OriginScanUPS> shipNotTenderUPS(String start, String end);
 }

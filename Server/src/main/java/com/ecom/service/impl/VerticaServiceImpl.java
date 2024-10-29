@@ -107,4 +107,18 @@ public class VerticaServiceImpl implements VerticaService {
     }
 
 
+    @Override
+    public List<OriginScanUPS> shipNotTenderUPS(String start, String end) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(start,dateTimeFormatter);
+        LocalDate endDate = LocalDate.parse(end,dateTimeFormatter);
+        //check if date range is too wide
+        long days = ChronoUnit.DAYS.between(startDate,endDate);
+        if(days > 30) throw new OutOfRangeException("Range Too Wide");
+
+        return verticaMapper.queryShipNotTenderUPS(start,end);
+    }
+
+
 }
