@@ -153,7 +153,7 @@
         and a.item = b.material
         and a.slot = b.sloc
         where a.`reference` != ''
-        and a.sloc = #{sloc}
+        and a.slot = #{sloc}
         and a.item = #{sku} and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
         and b.qty is null;
     </select>
