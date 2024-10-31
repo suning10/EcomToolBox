@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.util.HashMap;
+
 
 @Data
 @AllArgsConstructor
@@ -43,6 +46,21 @@ public class LocalFolderUtil {
 
         return filepath;
 
+    }
 
+    public HashMap<String,String> getUpdateTime(String path){
+        Path filepath = Paths.get(this.path + "\\"+ path);
+        HashMap<String,String> resultMap = new HashMap<>();
+        try{
+            FileTime fileTime = Files.getLastModifiedTime(filepath);
+            resultMap.put("filepath",filepath.toString());
+            resultMap.put("updateTime",fileTime.toString());
+            return resultMap;
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+        }
+
+        return null;
     }
 }

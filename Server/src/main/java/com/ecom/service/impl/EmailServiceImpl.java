@@ -47,4 +47,16 @@ public class EmailServiceImpl {
         //"Late Origin Scan for " + LocalDate.now().toString()
         javaMailSender.send(mimeMailMessage);
     }
+
+    public void sendEmailHTML(String toEmail, String subject, String body) throws MessagingException , UnsupportedEncodingException{
+
+        var mimeMailMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMailMessage);
+        mimeMessageHelper.setTo(toEmail);
+        mimeMessageHelper.setFrom("l.qin3@partner.sea.samsung.com","Lang Qin");
+        mimeMessageHelper.setSubject(subject);
+        mimeMessageHelper.setText(body,true);
+        //"Late Origin Scan for " + LocalDate.now().toString()
+        javaMailSender.send(mimeMailMessage);
+    }
 }
