@@ -88,9 +88,27 @@ public class SCRServiceImpl implements SCRService {
     }
 
     @Override
+    public List<SKUActivityNERP> querySKUComparisonMissingNerp(String sku, String start, String end) {
+
+
+        List<SKUActivityNERP> result = scrMapper.postSKUComparisonMissingNerpWOSLoc(sku,start,end);
+
+        return result;
+
+    }
+
+    @Override
     public List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String sku, String start, String end, String sloc) {
 
         List<SKUActivitySynapse> result = scrMapper.postSKUComparisonMissingSynapse(sku,start,end,sloc);
+
+        return result;
+    }
+
+    @Override
+    public List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String sku, String start, String end) {
+
+        List<SKUActivitySynapse> result = scrMapper.postSKUComparisonMissingSynapseWOSLoc(sku,start,end);
 
         return result;
     }

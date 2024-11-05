@@ -24,6 +24,9 @@ public interface SCRService {
 
     List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String sku, String start, String end, String sloc);
 
+    List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String sku, String start, String end);
+    List<SKUActivityNERP> querySKUComparisonMissingNerp(String sku, String start, String end);
+
     List<ScrReportSummary> queryScrReportSummary(String date);
 
     List<ScrReportGap> queryScrReportGap(String date, String sloc);

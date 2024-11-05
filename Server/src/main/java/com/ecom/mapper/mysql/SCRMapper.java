@@ -52,4 +52,8 @@ public interface SCRMapper {
     String getStgDate(@Param("tableName") String tableName , @Param("dateName") String dateName);
 
     int getTableDate(@Param("tableName") String tableName , @Param("dateName") String dateName, String stgDate);
+
+    List<SKUActivitySynapse> postSKUComparisonMissingSynapseWOSLoc(String sku, String start, String end);
+
+    List<SKUActivityNERP> postSKUComparisonMissingNerpWOSLoc(String sku, String start, String end);
 }

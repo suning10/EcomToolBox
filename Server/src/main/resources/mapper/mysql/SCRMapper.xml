@@ -99,40 +99,50 @@
         and  a.item = b.material
         and a.slot = b.sloc
         where a.`reference` != '' and b.`reference` != ''
-        and b.sloc = #{sloc}
+        <if test="sloc != 'all'">
+        and   b.sloc = #{sloc}
+        </if>
         and a.item = #{sku} and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
         and a.qty - b.qty != 0 ;
     </select>
     <select id="postSKUDetailNERPAdj" resultType="com.ecom.pojo.entity.SKUActivityNERP">
 
         select * from scr_nerp
-        where `reference` = '' and
-            sloc = #{sloc} and
-            material = #{sku} and
+        where `reference` = ''
+            <if test="sloc != 'all'">
+                and sloc = #{sloc}
+            </if>
+            and material = #{sku} and
             str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
             ;
     </select>
     <select id="postSKUDetailSynapseAdj" resultType="com.ecom.pojo.entity.SKUActivitySynapse">
         select * from scr_item_activity
-        where `reference` = '' and
-            slot = #{sloc} and
-            item = #{sku} and
-            str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end};
+        where `reference` = ''
+            <if test="sloc != 'all'">
+                and slot = #{sloc}
+            </if>
+            and item = #{sku}
+          and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end};
     </select>
     <select id="postSKUSummarySynapseAdj" resultType="com.ecom.pojo.entity.SKUSummaryByMvmType">
         select item,inventory_status as movement ,'Synapse' as source ,transaction_date as `date`,sum(qty) as qty from scr_item_activity
-        where `reference` = '' and
-            slot = #{sloc} and
-            item = #{sku} and
+        where `reference` = ''
+             <if test="sloc != 'all'">
+                 and slot = #{sloc}
+             </if>
+            and item = #{sku} and
             str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
         group by item,inventory_status,transaction_date;
     </select>
     <select id="postSKUSummaryNERPAdj" resultType="com.ecom.pojo.entity.SKUSummaryByMvmType">
         select material as item, mvt as movement,'NERP' as source,post_date as `date` ,sum(qty)  as qty from scr_nerp
-        where `reference` = '' and
-            sloc = #{sloc} and
-            material = #{sku} and
-            str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
+        where `reference` = ''
+            <if test="sloc != 'all'">
+                and sloc = #{sloc}
+            </if>
+            and material = #{sku}
+            and str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
         group by material, mvt,post_date;
     </select>
     <select id="postSKUComparisonMissingNerp" resultType="com.ecom.pojo.entity.SKUActivityNERP">
@@ -288,5 +298,26 @@
     <select id="getTableDate" resultType="java.lang.Integer">
         select count(1) from ${tableName}
         where ${dateName} = #{stgDate}
+    </select>
+    <select id="postSKUComparisonMissingSynapseWOSLoc" resultType="com.ecom.pojo.entity.SKUActivitySynapse">
+        select a.* from scr_item_activity a
+                            left join scr_nerp b
+                                      on a.`reference` = b. `reference`
+                                          and a.item = b.material
+                                          and a.slot = b.sloc
+        where a.`reference` != ''
+          and a.item = #{sku} and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
+          and b.qty is null;
+
+    </select>
+    <select id="postSKUComparisonMissingNerpWOSLoc" resultType="com.ecom.pojo.entity.SKUActivityNERP">
+        select b.* from scr_item_activity a
+                            right join scr_nerp b
+                                       on a.`reference` = b. `reference`
+                                           and a.item = b.material
+                                           and a.slot = b.sloc
+        where b.reference !=''
+          and b.material = #{sku} and str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
+          and a.item is null;
     </select>
 </mapper>

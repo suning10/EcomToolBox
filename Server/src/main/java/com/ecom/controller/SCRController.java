@@ -44,8 +44,13 @@ public class SCRController {
     @PostMapping("/skuComparisionMissingNerp")
     @Operation(summary = "SKUComparisonNERP")
     public Result<List<SKUActivityNERP>> skuComparisonMissingNerp(@RequestBody SKUSearchDTO skuSearchDTO) {
-
-        List<SKUActivityNERP> result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        List<SKUActivityNERP> result;
+        if(skuSearchDTO.getSloc().toLowerCase().equals("all")) {
+            result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        }
+        else{
+            result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        }
         return Result.success(result);
     }
 
@@ -57,7 +62,14 @@ public class SCRController {
     @Operation(summary = "SKUComparisonItemActivity")
     public Result<List<SKUActivitySynapse>> skuComparisonMissingItemActivity(@RequestBody SKUSearchDTO skuSearchDTO) {
 
-        List<SKUActivitySynapse> result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        List<SKUActivitySynapse> result ;
+        if(skuSearchDTO.getSloc().toLowerCase().equals("all")) {
+            result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        }
+        else{
+            result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        }
+
         return Result.success(result);
     }
 
