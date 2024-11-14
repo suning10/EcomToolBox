@@ -92,7 +92,10 @@
 
     <select id="querySKUComparison" resultType="com.ecom.pojo.entity.SKUComparison">
         select a.`reference`,a.item,a.transaction_type,a.transaction_date, a.po,a.inventory_status,
-               b.mvt,b.post_date,b.post_time,b.entry_date,a.qty as synapse_qty,b.qty as nerp_qty,b.doc_header,b.val_type
+               b.mvt,b.post_date,
+                date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+                Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`
+               ,a.qty as synapse_qty,b.qty as nerp_qty,b.doc_header,b.val_type
         from scr_item_activity a
         left join scr_nerp b
         on a.reference = b.reference
@@ -107,7 +110,21 @@
     </select>
     <select id="postSKUDetailNERPAdj" resultType="com.ecom.pojo.entity.SKUActivityNERP">
 
-        select * from scr_nerp
+        select             `material`,
+        `plnt`,
+        `sloc`,
+        `mvt`,
+        `movement_type_text`,
+        `special_stock`,
+        `reference`,
+        `mat_doc`,
+        `post_date`,
+        date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+        Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+        `qty`,
+        `username`,
+        `doc_header`,
+        `val_type` from scr_nerp
         where `reference` = ''
             <if test="sloc != 'all'">
                 and sloc = #{sloc}
@@ -146,7 +163,23 @@
         group by material, mvt,post_date;
     </select>
     <select id="postSKUComparisonMissingNerp" resultType="com.ecom.pojo.entity.SKUActivityNERP">
-        select b.* from scr_item_activity a
+        select
+            b.`material`,
+            b.`plnt`,
+            b.`sloc`,
+            b.`mvt`,
+            b.`movement_type_text`,
+            b.`special_stock`,
+            b.`reference`,
+            b.`mat_doc`,
+            b.`post_date`,
+            date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+            Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+            b.`qty`,
+            b.`username`,
+            b.`doc_header`,
+            b.`val_type`
+        from scr_item_activity a
         right join scr_nerp b
         on a.`reference` = b. `reference`
            and a.item = b.material
@@ -311,7 +344,23 @@
 
     </select>
     <select id="postSKUComparisonMissingNerpWOSLoc" resultType="com.ecom.pojo.entity.SKUActivityNERP">
-        select b.* from scr_item_activity a
+        select
+            b.`material`,
+            b.`plnt`,
+            b.`sloc`,
+            b.`mvt`,
+            b.`movement_type_text`,
+            b.`special_stock`,
+            b.`reference`,
+            b.`mat_doc`,
+            b.`post_date`,
+            date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+            Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+            b.`qty`,
+            b.`username`,
+            b.`doc_header`,
+            b.`val_type`
+        from scr_item_activity a
                             right join scr_nerp b
                                        on a.`reference` = b. `reference`
                                            and a.item = b.material
@@ -319,5 +368,38 @@
         where b.reference !=''
           and b.material = #{sku} and str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end}
           and a.item is null;
+    </select>
+    <select id="querySKUComparisonAll" resultType="com.ecom.pojo.entity.SKUComparison">
+        select a.`reference`,a.item,a.transaction_type,a.transaction_date, a.po,a.inventory_status,
+        b.mvt,b.post_date,
+        date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+        Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+        a.qty as synapse_qty,b.qty as nerp_qty,b.doc_header,b.val_type
+        from scr_item_activity a
+        left join scr_nerp b
+        on a.reference = b.reference
+        and  a.item = b.material
+        and a.slot = b.sloc
+        where a.`reference` != '' and b.`reference` != ''
+        <if test="sloc != 'all'">
+            and   b.sloc = #{sloc}
+        </if>
+        and a.item = #{sku} and str_to_date(`transaction_date`,'%m/%d/%Y') between #{start} and #{end}
+        union
+        select a.`reference`,a.item,a.transaction_type,a.transaction_date, a.po,a.inventory_status,
+        b.mvt,b.post_date,
+        date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+        Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+        a.qty as synapse_qty,b.qty as nerp_qty,b.doc_header,b.val_type
+        from scr_item_activity a
+        right join scr_nerp b
+        on a.reference = b.reference
+        and  a.item = b.material
+        and a.slot = b.sloc
+        where a.`reference` != '' and b.`reference` != ''
+        <if test="sloc != 'all'">
+            and   b.sloc = #{sloc}
+        </if>
+        and b.material = #{sku} and str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end};
     </select>
 </mapper>

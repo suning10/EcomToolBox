@@ -37,6 +37,17 @@ public class SCRController {
         return Result.success(result);
     }
 
+        /*
+    has references, joined by reference, sloc and sku
+     */
+    @PostMapping("/skuComparisionAll")
+    @Operation(summary = "SKUComparisonAll")
+    public Result<List<SKUComparison>> skuComparisonAll(@RequestBody SKUSearchDTO skuSearchDTO) {
+
+        List<SKUComparison> result = scrService.querySKUComparisonAll(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        return Result.success(result);
+    }
+
     /*
         has references, joined by reference, sloc and sku
         no reference in item activity
@@ -53,6 +64,8 @@ public class SCRController {
         }
         return Result.success(result);
     }
+
+
 
     /*
     has references, joined by reference, sloc and sku

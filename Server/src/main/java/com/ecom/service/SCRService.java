@@ -40,4 +40,6 @@ public interface SCRService {
     UploadStatus uploadSkuMB51(MultipartFile file);
 
     UploadStatus uploadSkuItemActivity(MultipartFile file);
+
+    List<SKUComparison> querySKUComparisonAll(String sku, String start, String end, String sloc);
 }

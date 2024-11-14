@@ -56,4 +56,6 @@ public interface SCRMapper {
     List<SKUActivitySynapse> postSKUComparisonMissingSynapseWOSLoc(String sku, String start, String end);
 
     List<SKUActivityNERP> postSKUComparisonMissingNerpWOSLoc(String sku, String start, String end);
+
+    List<SKUComparison> querySKUComparisonAll(String sku, String start, String end, String sloc);
 }

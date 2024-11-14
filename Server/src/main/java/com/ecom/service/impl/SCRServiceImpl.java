@@ -205,4 +205,12 @@ public class SCRServiceImpl implements SCRService {
         scrMapper.insertItemActivity();
         return UploadStatus.LoadSuccess;
     }
+
+    @Override
+    public List<SKUComparison> querySKUComparisonAll(String sku, String start, String end, String sloc) {
+
+        List<SKUComparison> result = scrMapper.querySKUComparisonAll(sku,start,end,sloc);
+
+        return result;
+    }
 }
