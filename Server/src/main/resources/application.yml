@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 80
   tomcat:
     max-swallow-size: 100MB
   address: 0.0.0.0
@@ -21,7 +21,7 @@ spring:
       jdbcUrl: ${ecom.datasource.vertica.url}
       username: ${ecom.datasource.vertica.username}
       #password: ${ecom.datasource.vertica.password}
-      password: l#e8nIzxa0S
+      password: lH7eqfUn1#v
     hikari:
       maximum-pool-size: 2
   servlet:

@@ -1,5 +1,6 @@
 package com.ecom.tasks;
 
+import com.ecom.common.properties.ExecutableProperties;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.SCRMapper;
 import com.ecom.pojo.entity.ScrReportSummary;
@@ -23,6 +24,31 @@ public class SCRTask {
 
     @Autowired
     private LocalFolderUtil localFolderUtil;
+
+    @Autowired
+    private ExecutableProperties executableProperties;
+
+
+    @Scheduled(cron = "0 0 8 * * *")
+    public void invokeSAP(){
+        try{
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command(executableProperties.getPath());
+            //processBuilder.command("C:\\Users\\l.qin3\\source\\repos\\ConsoleApp1\\ConsoleApp1\\bin\\Debug\\ConsoleApp1.exe");
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+            if(exitCode == 0) {return;}
+            else{
+                log.error("successfully invoked sap but failed during executing");
+                return;
+            }
+        }
+        catch (Exception e){
+            log.error("error happened while executing sap.exe");
+            log.error(e.getMessage());
+        }
+    }
+
     @Scheduled(cron = "0 15 8 * * *")
     public void scrReport(){
 

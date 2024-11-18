@@ -97,5 +97,14 @@ public class VerticaController {
         return Result.success(resultSet);
     }
 
+    @PostMapping("/NPSProduct")
+    @Operation(summary = "NPSProduct")
+    public Result<List<EDD>> getNPSProduct(@RequestBody EDDDTO eDDdto){
+
+        List<EDD> resultSet = verticaService.queryEDD(eDDdto);
+
+        return Result.success(resultSet);
+    }
+
 
 }

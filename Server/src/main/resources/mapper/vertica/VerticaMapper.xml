@@ -124,7 +124,7 @@
         </if>
 
         and physical_fulfiller_id = 'geodis'
-          and product_type = 'physical'
+        and product_type = 'physical'
     </select>
     <select id="queryOriginScanUPS" resultType="com.ecom.pojo.entity.OriginScanUPS">
         select DISTINCT  upper(foli.po_id) as po_id,fulfillment_delivery_do_id as do_id ,foli.physical_fulfiller_id  ,UPPER(foli.tracking_id) as tracking ,
