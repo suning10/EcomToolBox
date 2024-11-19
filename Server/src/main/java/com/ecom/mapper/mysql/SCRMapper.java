@@ -58,4 +58,8 @@ public interface SCRMapper {
     List<SKUActivityNERP> postSKUComparisonMissingNerpWOSLoc(String sku, String start, String end);
 
     List<SKUComparison> querySKUComparisonAll(String sku, String start, String end, String sloc);
+
+    List<SKUActivityNERP> postSKUComparisonMissingNerpEmail(String start, String end);
+
+    List<SKUActivitySynapse> postSKUComparisonMissingSynapseEmail(String start, String end);
 }

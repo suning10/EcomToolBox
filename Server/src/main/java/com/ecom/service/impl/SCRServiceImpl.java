@@ -213,4 +213,20 @@ public class SCRServiceImpl implements SCRService {
 
         return result;
     }
+
+    @Override
+    public List<SKUActivityNERP> querySKUComparisonMissingNerp(String start, String end) {
+
+        List<SKUActivityNERP> result = scrMapper.postSKUComparisonMissingNerpEmail(start,end);
+
+        return result;
+    }
+
+    @Override
+    public List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String start, String end) {
+
+        List<SKUActivitySynapse> result = scrMapper.postSKUComparisonMissingSynapseEmail(start,end);
+
+        return result;
+    }
 }

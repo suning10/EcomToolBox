@@ -42,4 +42,8 @@ public interface SCRService {
     UploadStatus uploadSkuItemActivity(MultipartFile file);
 
     List<SKUComparison> querySKUComparisonAll(String sku, String start, String end, String sloc);
+
+    List<SKUActivityNERP> querySKUComparisonMissingNerp(String start, String end);
+
+    List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String start, String end);
 }

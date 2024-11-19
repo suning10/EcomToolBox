@@ -402,4 +402,42 @@
         </if>
         and b.material = #{sku} and str_to_date(`post_date`,'%m/%d/%Y') between #{start} and #{end};
     </select>
+    <select id="postSKUComparisonMissingNerpEmail" resultType="com.ecom.pojo.entity.SKUActivityNERP">
+        select
+            b.`material`,
+            b.`plnt`,
+            b.`sloc`,
+            b.`mvt`,
+            b.`movement_type_text`,
+            b.`special_stock`,
+            b.`reference`,
+            b.`mat_doc`,
+            b.`post_date`,
+            date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+            Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+            b.`qty`,
+            b.`username`,
+            b.`doc_header`,
+            b.`val_type`
+        from scr_item_activity a
+            right join scr_nerp b
+        on a.`reference` = b. `reference`
+            and a.item = b.material
+            and a.slot = b.sloc
+        where b.reference !=''
+          and str_to_date(`post_date`,'%m/%d/%Y')
+            between #{start} and #{end}
+          and a.item is null;
+    </select>
+    <select id="postSKUComparisonMissingSynapseEmail" resultType="com.ecom.pojo.entity.SKUActivitySynapse">
+        select a.* from scr_item_activity a
+        left join scr_nerp b
+        on a.`reference` = b. `reference`
+        and a.item = b.material
+        and a.slot = b.sloc
+        where a.`reference` != ''
+		and str_to_date(`transaction_date`,'%m/%d/%Y')
+        between #{start} and #{end}
+          and b.qty is null;
+    </select>
 </mapper>

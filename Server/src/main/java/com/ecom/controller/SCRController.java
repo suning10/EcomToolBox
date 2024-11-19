@@ -211,6 +211,34 @@ public class SCRController {
         if(uploadStatus != UploadStatus.LoadSuccess) return Result.error("Data Already Exists or Load Failed");
         return Result.success();
     }
+
+
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in item activity
+*/
+    @PostMapping("/skuComparisionMissingNerpAll")
+    @Operation(summary = "SKUComparisonNERPAll")
+    public Result<List<SKUActivityNERP>> skuComparisonMissingNerpEmail(@RequestBody SKUSearchDTO skuSearchDTO) {
+        List<SKUActivityNERP> result;
+        result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        return Result.success(result);
+    }
+
+
+
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in NERP
+*/
+    @PostMapping("/skuComparisionMissingItemActivityAll")
+    @Operation(summary = "SKUComparisonItemActivityALL")
+    public Result<List<SKUActivitySynapse>> skuComparisonMissingItemActivityEmail(@RequestBody SKUSearchDTO skuSearchDTO) {
+
+        List<SKUActivitySynapse> result ;
+        result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        return Result.success(result);
+    }
 }
 
 
