@@ -239,6 +239,19 @@ public class SCRController {
         result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getStart(),skuSearchDTO.getEnd());
         return Result.success(result);
     }
+
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in NERP
+    */
+    @GetMapping("/dodResearch")
+    @Operation(summary = "DODResearch")
+    public Result<List<DODSearch>> dodResearch (@RequestParam String material, @RequestParam String sloc) {
+
+        List<DODSearch> result ;
+        result = scrService.queryDodBySku(material,sloc);
+        return Result.success(result);
+    }
 }
 
 

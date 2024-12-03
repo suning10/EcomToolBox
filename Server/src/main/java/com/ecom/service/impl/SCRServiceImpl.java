@@ -229,4 +229,11 @@ public class SCRServiceImpl implements SCRService {
 
         return result;
     }
+
+    @Override
+    public List<DODSearch> queryDodBySku(String material, String sloc) {
+
+        List<DODSearch> result = scrMapper.getDodBySku(material,sloc);
+        return result;
+    }
 }

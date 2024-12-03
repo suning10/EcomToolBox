@@ -46,4 +46,6 @@ public interface SCRService {
     List<SKUActivityNERP> querySKUComparisonMissingNerp(String start, String end);
 
     List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String start, String end);
+
+    List<DODSearch> queryDodBySku(String material, String sloc);
 }

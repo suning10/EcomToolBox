@@ -440,4 +440,11 @@
         between #{start} and #{end}
           and b.qty is null;
     </select>
+    <select id="getDodBySku" resultType="com.ecom.pojo.entity.DODSearch">
+        select Material as material,`Date` as `date`, TotGap as gap
+        from scrraw
+        where Material = #{material} and SLoc = #{sloc}
+        order by
+        str_to_date(`Date`,'%m/%d/%Y') desc
+    </select>
 </mapper>
