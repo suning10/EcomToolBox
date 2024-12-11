@@ -48,4 +48,8 @@ public interface SCRService {
     List<SKUActivitySynapse> querySKUComparisonMissingSynapse(String start, String end);
 
     List<DODSearch> queryDodBySku(String material, String sloc);
+
+    String queryMaxDateNerp();
+
+    String queryMaxDateSynapse();
 }

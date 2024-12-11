@@ -1,5 +1,6 @@
 package com.ecom.tasks;
 
+import com.ecom.common.enumeration.UploadStatus;
 import com.ecom.common.properties.ExecutableProperties;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.SCRMapper;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -136,5 +138,51 @@ public class SCRTask {
         catch (Exception e){
             log.error(e.toString());
         }
+    }
+    @Scheduled(cron = "0 45 11 * * *")
+    public void loadMB51ItemActivity(){
+
+        //check file is up-to-date
+        String day = LocalDate.now().toString();
+        var filePropertyMB51 = localFolderUtil.getUpdateTime("skuMb51.txt");
+        String fileTImeMb51 =  filePropertyMB51.get("updateTime").substring(0,10);
+        var filePropertyIA = localFolderUtil.getUpdateTime("item_activity.txt");
+        String fileTImeIA =  filePropertyIA.get("updateTime").substring(0,10);
+        if(!fileTImeMb51.equals(day) || !fileTImeIA.equals(day)) return;
+
+        //start loading MB51
+        //update stgTable
+        scrMapper.truncateTable("stg_scr_nerp");
+        scrMapper.updateStgTable(filePropertyMB51.get("filepath"),5,"stg_scr_nerp");
+        scrMapper.updateComma("stg_scr_nerp");
+        // check if data exists
+        String stgDate = scrMapper.getStgDate("stg_scr_nerp","post_date");
+        int tableDateCnt = scrMapper.getTableDate("scr_nerp","post_date",stgDate);
+        if(tableDateCnt > 1) return;
+        //load into actual table
+        scrMapper.insertMB51();
+
+        // start loading Item Activity
+
+        //update stgTable
+        scrMapper.truncateTable("stg_scr_item_activity");
+        scrMapper.updateStgTable(filePropertyIA.get("filepath"),1,"stg_scr_item_activity");
+        //update comma
+        scrMapper.updateComma("stg_scr_item_activity");
+        // check if data exists
+        stgDate = scrMapper.getStgDate("stg_scr_item_activity","transaction_date");
+        tableDateCnt = scrMapper.getTableDate("scr_item_activity","transaction_date",stgDate);
+        if(tableDateCnt > 1) return;
+        //load into actual table
+        scrMapper.insertItemActivity();
+
+        String body = LocalDate.now().minusDays(1).toString();
+
+        try{
+        emailService.sendEmail("l.qin3@partner.sea.samsung.com",body + " SCR NERP and Synpase have been loaded","At " + LocalDateTime.now().toString());}
+        catch (Exception e){
+            log.error("error in sending SCR Loading Email NERP and IA" + e.getMessage());
+        }
+
     }
 }

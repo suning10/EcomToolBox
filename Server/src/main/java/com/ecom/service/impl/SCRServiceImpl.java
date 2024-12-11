@@ -190,7 +190,7 @@ public class SCRServiceImpl implements SCRService {
 
         String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")) ;
         if(!extension.equals(".txt")) throw new ExtensionNotCorrectException("please upload correct file -- txt file is accepted");
-        String filename =  "skuItemActivity.txt";
+        String filename =  "item_activity.txt";
         String path = localFolderUtil.upload(file,filename);
         //update stgTable
         scrMapper.truncateTable("stg_scr_item_activity");
@@ -234,6 +234,18 @@ public class SCRServiceImpl implements SCRService {
     public List<DODSearch> queryDodBySku(String material, String sloc) {
 
         List<DODSearch> result = scrMapper.getDodBySku(material,sloc);
+        return result;
+    }
+
+    @Override
+    public String queryMaxDateNerp() {
+        String result = scrMapper.getMaxNerpDate();
+        return result;
+    }
+
+    @Override
+    public String queryMaxDateSynapse() {
+        String result = scrMapper.getMaxSynapseDate();
         return result;
     }
 }

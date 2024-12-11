@@ -36,12 +36,12 @@ public class EmailServiceImpl {
         javaMailSender.send(mimeMailMessage);
     }
 
-    public void sendEmail(String toEmail, String subject, String body) throws MessagingException {
+    public void sendEmail(String toEmail, String subject, String body) throws MessagingException, UnsupportedEncodingException {
 
         var mimeMailMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMailMessage);
         mimeMessageHelper.setTo(toEmail);
-        mimeMessageHelper.setFrom("l.qin3@partner.sea.samsung.com");
+        mimeMessageHelper.setFrom("l.qin3@partner.sea.samsung.com","Lang Qin");
         mimeMessageHelper.setSubject(subject);
         mimeMessageHelper.setText(body);
         //"Late Origin Scan for " + LocalDate.now().toString()

@@ -447,4 +447,7 @@
         order by
         str_to_date(`Date`,'%m/%d/%Y') desc
     </select>
+    <select id="getMaxNerpDate" resultType="java.lang.String">
+        select max(str_to_date(`post_date`,'%m/%d/%Y')) as nerp_date from scr_nerp
+    </select>
 </mapper>

@@ -252,6 +252,20 @@ public class SCRController {
         result = scrService.queryDodBySku(material,sloc);
         return Result.success(result);
     }
+
+    /*
+        has references, joined by reference, sloc and sku
+        no reference in NERP
+     */
+    @GetMapping("/getLatestResearchDate")
+    @Operation(summary = "LatestResearchDate")
+    public Result<String> getLatestResearchDay () {
+
+        String resultNERP = scrService.queryMaxDateNerp();
+        String resultIA = scrService.queryMaxDateSynapse();
+        String result = "NERP is updated to " +resultNERP + ", SYnapse is updated to " + resultIA;
+        return Result.success(result);
+    }
 }
 
 

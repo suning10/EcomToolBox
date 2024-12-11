@@ -3,6 +3,7 @@ package com.ecom.mapper.mysql;
 import com.ecom.pojo.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -64,4 +65,9 @@ public interface SCRMapper {
     List<SKUActivitySynapse> postSKUComparisonMissingSynapseEmail(String start, String end);
 
     List<DODSearch> getDodBySku(String material, String sloc);
+
+    String getMaxNerpDate();
+
+    @Select("select max(str_to_date(`transaction_date`,'%m/%d/%Y')) as synapse from scr_item_activity")
+    String getMaxSynapseDate();
 }
