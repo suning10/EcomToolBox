@@ -139,7 +139,7 @@ public class SCRTask {
             log.error(e.toString());
         }
     }
-    @Scheduled(cron = "0 45 11 * * *")
+    @Scheduled(cron = "0 0 10 * * *")
     public void loadMB51ItemActivity(){
 
         //check file is up-to-date
