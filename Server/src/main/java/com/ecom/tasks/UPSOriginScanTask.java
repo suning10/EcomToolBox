@@ -22,11 +22,13 @@ import java.util.List;
 @Component
 @Slf4j
 public class UPSOriginScanTask {
-
+    /*
     @Autowired
     private EmailServiceImpl emailService;
     @Autowired
     private VerticaMapper verticaMapper;
+
+
     @Scheduled(cron = "0 30 8 * * *")
     public void upsLateOriginScan(){
         int dayofweek = LocalDate.now().getDayOfWeek().getValue();
@@ -123,4 +125,6 @@ public class UPSOriginScanTask {
             log.error(e.toString());
         }
     }
+
+     */
 }
