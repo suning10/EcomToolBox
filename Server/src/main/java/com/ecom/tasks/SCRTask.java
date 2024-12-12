@@ -148,7 +148,15 @@ public class SCRTask {
         String fileTImeMb51 =  filePropertyMB51.get("updateTime").substring(0,10);
         var filePropertyIA = localFolderUtil.getUpdateTime("item_activity.txt");
         String fileTImeIA =  filePropertyIA.get("updateTime").substring(0,10);
-        if(!fileTImeMb51.equals(day) || !fileTImeIA.equals(day)) return;
+        if(!fileTImeMb51.equals(day) || !fileTImeIA.equals(day)) {
+            try{
+                String body = LocalDate.now().minusDays(1).toString();
+                emailService.sendEmail("l.qin3@partner.sea.samsung.com", body + " SCR NERP and Synpase Failed to load, Please update manually","At " + LocalDateTime.now().toString());}
+            catch (Exception e){
+                log.error("error in sending SCR Loading Email NERP and IA" + e.getMessage());
+            }
+            return;
+        }
 
         //start loading MB51
         //update stgTable
