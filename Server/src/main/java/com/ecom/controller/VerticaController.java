@@ -88,6 +88,15 @@ public class VerticaController {
         return Result.success(resultSet);
     }
 
+    @PostMapping("/eddCE")
+    @Operation(summary = "EDDCE")
+    public Result<List<EDDCe>> getEddCe(@RequestBody EDDDTO eDDdto){
+
+        List<EDDCe> resultSet = verticaService.queryEDDCe(eDDdto);
+
+        return Result.success(resultSet);
+    }
+
     @GetMapping("/originScanUPS")
     @Operation(summary = "originScanUPS")
     public Result<List<OriginScanUPS>> getOriginScanUPS(@RequestParam String start, @RequestParam String end ){

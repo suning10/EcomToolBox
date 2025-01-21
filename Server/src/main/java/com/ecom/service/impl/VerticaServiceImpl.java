@@ -120,5 +120,21 @@ public class VerticaServiceImpl implements VerticaService {
         return verticaMapper.queryShipNotTenderUPS(start,end);
     }
 
+    @Override
+    public List<EDDCe> queryEDDCe(EDDDTO eDDdto) {
+        if(eDDdto.getSearchFlag().equals("PO")) {
+            return verticaMapper.queryEDDCe(eDDdto.getIdList(),0);
+        }
+
+        if(eDDdto.getSearchFlag().equals("DO")) {
+            return verticaMapper.queryEDDCe(eDDdto.getIdList(),1);
+        }
+        if(eDDdto.getSearchFlag().equals("TRACKING")) {
+            return verticaMapper.queryEDDCe(eDDdto.getIdList(),2);
+        }
+
+        return null;
+    }
+
 
 }

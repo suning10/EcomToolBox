@@ -169,4 +169,31 @@
         and foli.fulfillment_carrier_id  = 'ups';
 
     </select>
+    <select id="queryEDDCe" resultType="com.ecom.pojo.entity.EDDCe">
+        select foli.po_id ,fulfillment_delivery_do_id as do_id ,foli.shipped_sku,foli.shipping_amt,foli.physical_fulfiller_id  ,UPPER(tracking_id) as tracking ,
+        current_promise_delivery_ts::Date as EDD,foli.delivered_ts::Date,foli.fulfillment_carrier_id,foli.sales_price,foli.list_price
+
+        from edw.fact_order_line_items foli
+        where foli.is_active =1
+        <if test="flag == 0">
+            and foli.po_id in
+            <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        </if>
+        <if test="flag == 1">
+            and foli.fulfillment_delivery_do_id in
+            <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        </if>
+        <if test="flag == 2">
+            and foli.tracking_id in
+            <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        </if>
+        and product_type = 'physical'
+
+    </select>
 </mapper>
