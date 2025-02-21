@@ -488,7 +488,7 @@
         `TotGap` as total_gap,
         `SLoc` as sloc,
         `valType` as val_type,
-        `Date` as `date`,'block' as 'action', least(abs(`UNS(NERP)` - `UNS(3PL)`),abs(`BLK(NERP)`) - abs(`BLK(3PL)`)) as qty_to_unblock from scrraw
+        `Date` as `date`,'unblock' as 'action', least(abs(`UNS(NERP)` - `UNS(3PL)`),abs(`BLK(NERP)`) - abs(`BLK(3PL)`)) as qty_to_unblock from scrraw
         where str_to_date(`Date`,'%m/%d/%Y')  = #{date}
         and abs(`UNS(NERP)`) - abs(`UNS(3PL)`) &lt; 0
         and abs(`BLK(NERP)`) - abs(`BLK(3PL)`) > 0;

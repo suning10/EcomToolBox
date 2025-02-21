@@ -144,7 +144,7 @@ public class SCRTask {
         html.append("</tbody></table><br><p>To View Details, Please go to http://drtw-seaqlik.sea.samsung.com:8888/#/scr/scrReasearch </p><br><i>New SCR Research Has Been Added. Go to SCR Research -> SCR Research. You Can Check Activity on Items Have Gaps </i></body></html>");
         var fileAttachment = this.generateSCR();
         try{
-        emailService.sendEmail("l.qin3@partner.sea.samsung.com","SCR Summary",html.toString(),fileAttachment);}
+        emailService.sendEmail("eCommTeam@sea.samsung.com","SCR Summary",html.toString(),fileAttachment);}
         catch (Exception e){
             log.error(e.toString());
         }
