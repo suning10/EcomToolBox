@@ -4,14 +4,22 @@ import com.ecom.common.enumeration.UploadStatus;
 import com.ecom.common.properties.ExecutableProperties;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.SCRMapper;
+import com.ecom.pojo.entity.ScrReportMaintainBlockUnblock;
 import com.ecom.pojo.entity.ScrReportSummary;
 import com.ecom.service.impl.EmailServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -63,6 +71,7 @@ public class SCRTask {
 //        int tableDateCnt = scrMapper.getTableDate("scrraw","Date",day);
 //        if(tableDateCnt < 2) return;
 //        //load data here
+
         scrMapper.truncateTable("stagingscrraw");
         scrMapper.updateStgTable(fileProperty.get("filepath"),5,"stagingscrraw");
         String stgDate = scrMapper.getStgDate("stagingscrraw","Date");
@@ -133,8 +142,9 @@ public class SCRTask {
         }
 
         html.append("</tbody></table><br><p>To View Details, Please go to http://drtw-seaqlik.sea.samsung.com:8888/#/scr/scrReasearch </p><br><i>New SCR Research Has Been Added. Go to SCR Research -> SCR Research. You Can Check Activity on Items Have Gaps </i></body></html>");
+        var fileAttachment = this.generateSCR();
         try{
-        emailService.sendEmailHTML("eCommTeam@sea.samsung.com","SCR Summary",html.toString());}
+        emailService.sendEmail("l.qin3@partner.sea.samsung.com","SCR Summary",html.toString(),fileAttachment);}
         catch (Exception e){
             log.error(e.toString());
         }
@@ -192,5 +202,228 @@ public class SCRTask {
             log.error("error in sending SCR Loading Email NERP and IA" + e.getMessage());
         }
 
+    }
+
+    private List<String> generateSCR(){
+        String end = LocalDate.now().toString();
+        List<String> pathStringList = new ArrayList<>();
+        String pathStringBlockUnblock = "C:\\Users\\l.qin3\\Documents\\uploads\\SCRMaintainBlockUnblock.csv";
+        pathStringList.add(pathStringBlockUnblock);
+        String pathStringMovetoWC1EorWR2E = "C:\\Users\\l.qin3\\Documents\\uploads\\SCRMaintainMovement.csv";
+        pathStringList.add(pathStringMovetoWC1EorWR2E);
+        String pathStringRemainToBlock = "C:\\Users\\l.qin3\\Documents\\uploads\\SCRMaintainRemainToBlock.csv";
+        pathStringList.add(pathStringRemainToBlock);
+        for (String pathString:pathStringList
+        ) {
+
+            Path filePath = Paths.get(pathString);
+            try {
+                if (Files.notExists(filePath)) {
+                    filePath.toFile().createNewFile();
+                }
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Material");
+                stringBuilder.append(',');
+                stringBuilder.append("Description");
+                stringBuilder.append(',');
+                stringBuilder.append("QINerp");
+                stringBuilder.append(',');
+                stringBuilder.append("QI3pl");
+                stringBuilder.append(',');
+                stringBuilder.append("QIGap");
+                stringBuilder.append(',');
+                stringBuilder.append("UNSNerp");
+                stringBuilder.append(',');
+                stringBuilder.append("UNS3pl");
+                stringBuilder.append(',');
+                stringBuilder.append("unsGap");
+                stringBuilder.append(',');
+                stringBuilder.append("blkNerp");
+                stringBuilder.append(',');
+                stringBuilder.append("blk3pl");
+                stringBuilder.append(',');
+                stringBuilder.append("blkGap");
+                stringBuilder.append(',');
+                stringBuilder.append("totalNerp");
+                stringBuilder.append(',');
+                stringBuilder.append("total3pl");
+                stringBuilder.append(',');
+                stringBuilder.append("totalGap");
+                stringBuilder.append(',');
+                stringBuilder.append("valType");
+                stringBuilder.append(',');
+                stringBuilder.append("sloc");
+                stringBuilder.append(',');
+                if (pathString.equals(pathStringRemainToBlock)){
+                    stringBuilder.append("blocked qty in step 2");
+                    stringBuilder.append(',');
+                    stringBuilder.append("action");
+                    stringBuilder.append(',');
+                    stringBuilder.append("Remained to Block");
+                }
+                if (pathString.equals(pathStringBlockUnblock)){
+                    stringBuilder.append("action");
+                    stringBuilder.append(',');
+                    stringBuilder.append("Qty to Block or Unblock");
+                }
+                if (pathString.equals(pathStringMovetoWC1EorWR2E)){
+                    stringBuilder.append("action");
+                    stringBuilder.append(',');
+                    stringBuilder.append("Qty to Move to WC1E or WR2E");
+                }
+                stringBuilder.append(',');
+                stringBuilder.append("date");
+                stringBuilder.append(System.lineSeparator());
+
+                if (pathString.equals(pathStringBlockUnblock)) {
+                    var result_block = scrMapper.getBlockUnblock(end);
+                    for (var entity: result_block
+                    ) {
+                        stringBuilder.append(entity.getMaterial());
+                        stringBuilder.append(',');
+                        stringBuilder.append(quote(entity.getDescription()));
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQiNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQi3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQiGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUnsNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUns3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUnsGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlkNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlk3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlkGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotalNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotal3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotalGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getValType());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getSloc());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getAction());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQtyToBlock());
+                        stringBuilder.append(',');
+                        stringBuilder.append(quote(entity.getDate()));
+
+                    }
+                }
+                else if (pathString.equals(pathStringMovetoWC1EorWR2E)) {
+                    var result_movement = scrMapper.getMovement(end);
+                    for (var entity: result_movement
+                    ) {
+                        stringBuilder.append(entity.getMaterial());
+                        stringBuilder.append(',');
+                        stringBuilder.append(quote(entity.getDescription()));
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQiNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQi3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQiGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUnsNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUns3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUnsGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlkNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlk3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlkGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotalNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotal3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotalGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getValType());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getSloc());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getAction());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQtyToMove());
+                        stringBuilder.append(',');
+                        stringBuilder.append(quote(entity.getDate()));
+
+                    }
+                } else {
+                    var result_remain = scrMapper.getRemainToBlock(end);
+                    for (var entity: result_remain
+                    ) {
+                        stringBuilder.append(entity.getMaterial());
+                        stringBuilder.append(',');
+                        stringBuilder.append(quote(entity.getDescription()));
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQiNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQi3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQiGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUnsNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUns3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getUnsGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlkNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlk3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlkGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotalNerp());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotal3pl());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getTotalGap());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getValType());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getSloc());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getBlockedQty());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getAction());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQtyToBlock());
+                        stringBuilder.append(',');
+                        stringBuilder.append(quote(entity.getDate()));
+                    }
+                }
+                stringBuilder.append(System.lineSeparator());
+                Files.write(filePath, stringBuilder.toString().getBytes(), StandardOpenOption.WRITE);
+            } catch (IOException e) {
+                log.error(e.toString());
+            }
+
+
+        }
+
+        return pathStringList;
+    }
+
+    private String quote(String text){
+        if(text.contains(",")|| text.contains("\"") || text.contains("\n")){
+            text = "\"" + text.replace("\"","\"\"") +  "\"";
+
+        }
+        return text;
     }
 }

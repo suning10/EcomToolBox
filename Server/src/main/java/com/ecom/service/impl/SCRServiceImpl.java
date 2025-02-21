@@ -248,4 +248,24 @@ public class SCRServiceImpl implements SCRService {
         String result = scrMapper.getMaxSynapseDate();
         return result;
     }
+
+    public List<ScrReportMaintainBlockUnblock> queryBlockUnblock(String date){
+
+        List<ScrReportMaintainBlockUnblock> result = scrMapper.getBlockUnblock(date);
+
+
+        return result;
+    }
+
+    public List<ScrReportMaintainMove> querySCRMove(String date){
+
+        List<ScrReportMaintainMove> result = scrMapper.getMovement(date);
+        return result;
+    }
+
+    public List<ScrReportMaintainRemainToBlock> querySCRRemainToBlock(String date){
+
+        List<ScrReportMaintainRemainToBlock> result = scrMapper.getRemainToBlock(date);
+        return result;
+    }
 }

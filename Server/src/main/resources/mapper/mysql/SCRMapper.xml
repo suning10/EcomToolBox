@@ -450,4 +450,146 @@
     <select id="getMaxNerpDate" resultType="java.lang.String">
         select max(str_to_date(`post_date`,'%m/%d/%Y')) as nerp_date from scr_nerp
     </select>
+    <select id="getBlockUnblock" resultType="com.ecom.pojo.entity.ScrReportMaintainBlockUnblock">
+        select material as material,
+        `Description` as description,
+        `QII(NERP)` as qi_nerp,
+        `QII(3PL)` as qi3pl,
+        `QIIGAP` as qi_gap,
+        `UNS(NERP)`as uns_nerp,
+        `UNS(3PL)` as uns3pl,
+        `UNSGAP` as uns_gap,
+        `BLK(NERP)` as blk_nerp,
+        `BLK(3PL)` as blk3pl,
+        `BLKGAP` as blkGap,
+        `Total(NERP)` as total_nerp,
+        `Total(3PL)` as total3pl,
+        `TotGap` as total_gap,
+        `SLoc` as sloc,
+        `valType` as val_type,
+        `Date` as `date`,'block' as 'action', least(abs(`UNS(NERP)` - `UNS(3PL)`),abs(`BLK(NERP)` - `BLK(3PL)`)) as 'qty_to_block' from scrraw
+        where str_to_date(`Date`,'%m/%d/%Y')  = #{date}
+        and abs(`UNS(NERP)`) - abs(`UNS(3PL)`) > 0
+        and abs(`BLK(NERP)`) - abs(`BLK(3PL)`) &lt; 0
+        union all
+        select material as material,
+        `Description` as description,
+        `QII(NERP)` as qi_nerp,
+        `QII(3PL)` as qi3pl,
+        `QIIGAP` as qi_gap,
+        `UNS(NERP)`as uns_nerp,
+        `UNS(3PL)` as uns3pl,
+        `UNSGAP` as uns_gap,
+        `BLK(NERP)` as blk_nerp,
+        `BLK(3PL)` as blk3pl,
+        `BLKGAP` as blkGap,
+        `Total(NERP)` as total_nerp,
+        `Total(3PL)` as total3pl,
+        `TotGap` as total_gap,
+        `SLoc` as sloc,
+        `valType` as val_type,
+        `Date` as `date`,'block' as 'action', least(abs(`UNS(NERP)` - `UNS(3PL)`),abs(`BLK(NERP)`) - abs(`BLK(3PL)`)) as qty_to_unblock from scrraw
+        where str_to_date(`Date`,'%m/%d/%Y')  = #{date}
+        and abs(`UNS(NERP)`) - abs(`UNS(3PL)`) &lt; 0
+        and abs(`BLK(NERP)`) - abs(`BLK(3PL)`) > 0;
+
+    </select>
+    <select id="getMovement" resultType="com.ecom.pojo.entity.ScrReportMaintainMove">
+
+        select a.material as material,
+        a.`Description` as description,
+        a.`QII(NERP)` as qi_nerp,
+        a.`QII(3PL)` as qi3pl,
+        a.`QIIGAP` as qi_gap,
+        a.`UNS(NERP)`as uns_nerp,
+        a.`UNS(3PL)` as uns3pl,
+        a.`UNSGAP` as uns_gap,
+        a.`BLK(NERP)` as blk_nerp,
+        a.`BLK(3PL)` as blk3pl,
+        a.`BLKGAP` as blkGap,
+        a.`Total(NERP)` as total_nerp,
+        a.`Total(3PL)` as total3pl,
+        a.`TotGap` as total_gap,
+        a.`SLoc` as sloc,
+        a.`valType` as val_type,
+        a.`Date` as `date` , 'move_to_wr2e' as 'Action', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))) as 'qty_to_move'  from (
+        select * from scrraw
+        where SLoc = 'WC1E' and
+        str_to_date(`Date`,'%m/%d/%Y')  = #{date}) a
+        join
+        (
+        select * from scrraw
+        where SLoc = 'WR2E' and str_to_date(`Date`,'%m/%d/%Y')  =  #{date}) b
+        on a.Material = b.Material
+        where
+        abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`) > 0
+        and abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`) &lt; 0
+        union all
+        select a.material as material,
+        a.`Description` as description,
+        a.`QII(NERP)` as qi_nerp,
+        a.`QII(3PL)` as qi3pl,
+        a.`QIIGAP` as qi_gap,
+        a.`UNS(NERP)`as uns_nerp,
+        a.`UNS(3PL)` as uns3pl,
+        a.`UNSGAP` as uns_gap,
+        a.`BLK(NERP)` as blk_nerp,
+        a.`BLK(3PL)` as blk3pl,
+        a.`BLKGAP` as blkGap,
+        a.`Total(NERP)` as total_nerp,
+        a.`Total(3PL)` as total3pl,
+        a.`TotGap` as total_gap,
+        a.`SLoc` as sloc,
+        a.`valType` as val_type,
+        a.`Date` as `date` ,'move_to_wc1e' as 'Action', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))) as 'qty_to_move' from (
+        select * from scrraw
+        where SLoc = 'WC1E' and
+        str_to_date(`Date`,'%m/%d/%Y')  =  #{date}) a
+        join
+        (
+        select * from scrraw
+        where SLoc = 'WR2E' and str_to_date(`Date`,'%m/%d/%Y')  = #{date}) b
+        on a.Material = b.Material
+        where
+        abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`) &lt; 0
+        and abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`) > 0 ;
+    </select>
+    <select id="getRemainToBlock" resultType="com.ecom.pojo.entity.ScrReportMaintainRemainToBlock">
+        select material as material,
+        `Description` as description,
+        `QII(NERP)` as qi_nerp,
+        `QII(3PL)` as qi3pl,
+        `QIIGAP` as qi_gap,
+        `UNS(NERP)`as uns_nerp,
+        `UNS(3PL)` as uns3pl,
+        `UNSGAP` as uns_gap,
+        `BLK(NERP)` as blk_nerp,
+        `BLK(3PL)` as blk3pl,
+        `BLKGAP` as blkGap,
+        `Total(NERP)` as total_nerp,
+        `Total(3PL)` as total3pl,
+        `TotGap` as total_gap,
+        `SLoc` as sloc,
+        `valType` as val_type,
+        `Date` as `date`,
+        case when
+        abs(`UNS(NERP)`) - abs(`UNS(3PL)`) > 0 and abs(`BLK(NERP)`) - abs(`BLK(3PL)`) &lt; 0
+        then
+        least(abs(`UNS(NERP)` - `UNS(3PL)`),abs(`BLK(NERP)` - `BLK(3PL)`))
+        else
+        0
+        end as 'blocked_qty',
+        'remaining_uns_overage' as 'action',
+        case when
+        abs(`UNS(NERP)`) - abs(`UNS(3PL)`) > 0 and abs(`BLK(NERP)`) - abs(`BLK(3PL)`) &lt; 0
+        then
+        abs(`UNS(NERP)`-`UNS(3PL)`) -
+        least(abs(`UNS(NERP)` - `UNS(3PL)`),abs(`BLK(NERP)` - `BLK(3PL)`))
+        else
+        abs(`UNS(NERP)`-`UNS(3PL)`)
+        end as 'qty_to_block'
+        from scrraw where str_to_date(`Date`,'%m/%d/%Y')  = #{date}
+        and abs(`UNS(NERP)`) - abs(`UNS(3PL)`) > 0
+        and SLoc = 'WC1E';
+    </select>
 </mapper>

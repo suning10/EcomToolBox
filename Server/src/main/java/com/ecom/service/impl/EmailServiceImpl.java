@@ -27,7 +27,7 @@ public class EmailServiceImpl {
         mimeMessageHelper.setTo(toEmail);
         mimeMessageHelper.setFrom("l.qin3@partner.sea.samsung.com","Lang Qin");
         mimeMessageHelper.setSubject(subject);
-        mimeMessageHelper.setText(body);
+        mimeMessageHelper.setText(body,true);
         for (var filepath: attachmentPath
              ) {
             FileSystemResource file  = new FileSystemResource(new File(filepath));

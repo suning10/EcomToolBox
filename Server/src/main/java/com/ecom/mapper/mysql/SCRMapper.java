@@ -70,4 +70,10 @@ public interface SCRMapper {
 
     @Select("select max(str_to_date(`transaction_date`,'%m/%d/%Y')) as synapse from scr_item_activity")
     String getMaxSynapseDate();
+
+    List<ScrReportMaintainBlockUnblock> getBlockUnblock(String date);
+
+    List<ScrReportMaintainMove> getMovement(String date);
+
+    List<ScrReportMaintainRemainToBlock> getRemainToBlock(String date);
 }
