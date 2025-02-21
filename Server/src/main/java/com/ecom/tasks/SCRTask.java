@@ -224,8 +224,8 @@ public class SCRTask {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("Material");
                 stringBuilder.append(',');
-                stringBuilder.append("Description");
-                stringBuilder.append(',');
+//                stringBuilder.append("Description");
+//                stringBuilder.append(',');
                 stringBuilder.append("QINerp");
                 stringBuilder.append(',');
                 stringBuilder.append("QI3pl");
@@ -281,8 +281,8 @@ public class SCRTask {
                     ) {
                         stringBuilder.append(entity.getMaterial());
                         stringBuilder.append(',');
-                        stringBuilder.append(quote(entity.getDescription()));
-                        stringBuilder.append(',');
+//                        stringBuilder.append(quote(entity.getDescription()));
+//                        stringBuilder.append(',');
                         stringBuilder.append(entity.getQiNerp());
                         stringBuilder.append(',');
                         stringBuilder.append(entity.getQi3pl());
@@ -325,8 +325,8 @@ public class SCRTask {
                     ) {
                         stringBuilder.append(entity.getMaterial());
                         stringBuilder.append(',');
-                        stringBuilder.append(quote(entity.getDescription()));
-                        stringBuilder.append(',');
+//                        stringBuilder.append(quote(entity.getDescription()));
+//                        stringBuilder.append(',');
                         stringBuilder.append(entity.getQiNerp());
                         stringBuilder.append(',');
                         stringBuilder.append(entity.getQi3pl());
@@ -368,8 +368,8 @@ public class SCRTask {
                     ) {
                         stringBuilder.append(entity.getMaterial());
                         stringBuilder.append(',');
-                        stringBuilder.append(quote(entity.getDescription()));
-                        stringBuilder.append(',');
+//                        stringBuilder.append(quote(entity.getDescription()));
+//                        stringBuilder.append(',');
                         stringBuilder.append(entity.getQiNerp());
                         stringBuilder.append(',');
                         stringBuilder.append(entity.getQi3pl());
