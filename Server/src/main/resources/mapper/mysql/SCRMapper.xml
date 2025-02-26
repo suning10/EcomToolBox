@@ -452,7 +452,6 @@
     </select>
     <select id="getBlockUnblock" resultType="com.ecom.pojo.entity.ScrReportMaintainBlockUnblock">
         select material as material,
-        `Description` as description,
         `QII(NERP)` as qi_nerp,
         `QII(3PL)` as qi3pl,
         `QIIGAP` as qi_gap,
@@ -473,7 +472,6 @@
         and abs(`BLK(NERP)`) - abs(`BLK(3PL)`) &lt; 0
         union all
         select material as material,
-        `Description` as description,
         `QII(NERP)` as qi_nerp,
         `QII(3PL)` as qi3pl,
         `QIIGAP` as qi_gap,
@@ -497,7 +495,6 @@
     <select id="getMovement" resultType="com.ecom.pojo.entity.ScrReportMaintainMove">
 
         select a.material as material,
-        a.`Description` as description,
         a.`QII(NERP)` as qi_nerp,
         a.`QII(3PL)` as qi3pl,
         a.`QIIGAP` as qi_gap,
@@ -526,7 +523,6 @@
         and abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`) &lt; 0
         union all
         select a.material as material,
-        a.`Description` as description,
         a.`QII(NERP)` as qi_nerp,
         a.`QII(3PL)` as qi3pl,
         a.`QIIGAP` as qi_gap,

@@ -1,10 +1,9 @@
 package com.ecom.tasks;
 
-import com.ecom.common.enumeration.UploadStatus;
+
 import com.ecom.common.properties.ExecutableProperties;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.SCRMapper;
-import com.ecom.pojo.entity.ScrReportMaintainBlockUnblock;
 import com.ecom.pojo.entity.ScrReportSummary;
 import com.ecom.service.impl.EmailServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +78,6 @@ public class SCRTask {
         if(tableDateCnt > 1) return;
         //load into actual table
         scrMapper.insert();
-
         List<ScrReportSummary> result = scrMapper.getSCRReportSummary("0");
         StringBuilder html = new StringBuilder();
         html.append("        <html>" +
@@ -218,7 +216,8 @@ public class SCRTask {
 
             Path filePath = Paths.get(pathString);
             try {
-                if (Files.notExists(filePath)) {
+                if (Files.exists(filePath)) {
+                    Files.deleteIfExists(filePath);
                     filePath.toFile().createNewFile();
                 }
                 StringBuilder stringBuilder = new StringBuilder();
