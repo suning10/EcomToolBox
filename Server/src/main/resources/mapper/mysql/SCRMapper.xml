@@ -509,18 +509,31 @@
         a.`TotGap` as total_gap,
         a.`SLoc` as sloc,
         a.`valType` as val_type,
-        a.`Date` as `date` , 'move_to_wr2e' as 'Action', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))) as 'qty_to_move'  from (
+        a.`Date` as `date` ,
+        'move_to_wr3e' as action_1,
+        least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(ifnull(c.`Total(NERP)`,0) - ifnull(c.`Total(3PL)`,0))) as qty_to_move_1,
+        'move_to_wr2e' as 'action_2', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`)),
+        abs(a.`Total(NERP)`- a.`Total(3PL)`) -
+        least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(ifnull(c.`Total(NERP)`,0) - ifnull(c.`Total(3PL)`,0)))) as qty_to_move_2
+        from (
         select * from scrraw
         where SLoc = 'WC1E' and
         str_to_date(`Date`,'%m/%d/%Y')  = #{date}) a
         join
         (
-        select * from scrraw
+        select Material, `Total(NERP)`,`Total(3PL)` from scrraw
         where SLoc = 'WR2E' and str_to_date(`Date`,'%m/%d/%Y')  =  #{date}) b
         on a.Material = b.Material
+        left join
+        (
+        select Material, `Total(NERP)`,`Total(3PL)` from scrraw
+        where SLoc = 'WR3E' and str_to_date(`Date`,'%m/%d/%Y')  =  #{date}) c
+        on a.Material = c.Material
         where
         abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`) > 0
-        and abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`) &lt; 0
+        and (abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`) &lt; 0 or
+        abs(c.`Total(NERP)`) - abs(c.`Total(3PL)`) &lt; 0)
+
         union all
         select a.material as material,
         a.`QII(NERP)` as qi_nerp,
@@ -535,9 +548,11 @@
         a.`Total(NERP)` as total_nerp,
         a.`Total(3PL)` as total3pl,
         a.`TotGap` as total_gap,
-        a.`SLoc` as sloc,
+        b.`SLoc` as sloc,
         a.`valType` as val_type,
-        a.`Date` as `date` ,'move_to_wc1e' as 'Action', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))) as 'qty_to_move' from (
+        a.`Date` as `date` ,'move_to_wc1e' as 'action_1', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))) as 'qty_to_move_1',
+        '' as action_2, '' as qty_to_move_2
+        from (
         select * from scrraw
         where SLoc = 'WC1E' and
         str_to_date(`Date`,'%m/%d/%Y')  =  #{date}) a
