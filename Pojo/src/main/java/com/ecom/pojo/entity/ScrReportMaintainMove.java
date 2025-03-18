@@ -31,6 +31,8 @@ public class ScrReportMaintainMove implements Serializable{
     private String sloc;
     private String valType;
     private String date;
-    private String action;
-    private String qtyToMove;
+    private String action1;
+    private String qtyToMove1;
+    private String action2;
+    private String qtyToMove2;
 }

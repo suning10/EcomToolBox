@@ -266,9 +266,13 @@ public class SCRTask {
                     stringBuilder.append("Qty to Block or Unblock");
                 }
                 if (pathString.equals(pathStringMovetoWC1EorWR2E)){
-                    stringBuilder.append("action");
+                    stringBuilder.append("action1");
                     stringBuilder.append(',');
-                    stringBuilder.append("Qty to Move to WC1E or WR2E");
+                    stringBuilder.append("qtyToMove1");
+                    stringBuilder.append(',');
+                    stringBuilder.append("action2");
+                    stringBuilder.append(',');
+                    stringBuilder.append("qtyToMove2");
                 }
                 stringBuilder.append(',');
                 stringBuilder.append("date");
@@ -354,9 +358,13 @@ public class SCRTask {
                         stringBuilder.append(',');
                         stringBuilder.append(entity.getSloc());
                         stringBuilder.append(',');
-                        stringBuilder.append(entity.getAction());
+                        stringBuilder.append(entity.getAction1());
                         stringBuilder.append(',');
-                        stringBuilder.append(entity.getQtyToMove());
+                        stringBuilder.append(entity.getQtyToMove1());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getAction2());
+                        stringBuilder.append(',');
+                        stringBuilder.append(entity.getQtyToMove2());
                         stringBuilder.append(',');
                         stringBuilder.append(quote(entity.getDate()));
 
