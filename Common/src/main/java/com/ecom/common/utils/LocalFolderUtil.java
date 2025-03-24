@@ -63,4 +63,19 @@ public class LocalFolderUtil {
 
         return null;
     }
+
+    public static boolean fileExists(String path){
+        Path filepath = Paths.get(path);
+        if(Files.exists(filepath)) return true;
+        return false;
+    }
+
+    public static void deleteFile(String path){
+        Path filepath = Paths.get(path);
+        try{
+            Files.deleteIfExists(filepath);}
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

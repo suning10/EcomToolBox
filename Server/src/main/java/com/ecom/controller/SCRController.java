@@ -3,18 +3,28 @@ package com.ecom.controller;
 
 import com.ecom.common.enumeration.UploadStatus;
 import com.ecom.common.result.Result;
+import com.ecom.common.utils.LocalFolderUtil;
+import com.ecom.common.utils.exportToCSVUtil;
 import com.ecom.pojo.dto.SKUSearchDTO;
 import com.ecom.pojo.entity.*;
 import com.ecom.pojo.vo.SKUSummaryByMvmTypeVO;
 import com.ecom.service.SCRService;
+import com.ecom.service.impl.EmailServiceImpl;
+import com.ecom.service.impl.SCRAsyncTaskImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("admin/scr")
@@ -24,6 +34,13 @@ public class SCRController {
 
     @Autowired
     private SCRService scrService;
+
+    @Autowired
+    SCRAsyncTaskImpl scrAsyncTask;
+
+    @Autowired
+    private EmailServiceImpl emailService;
+
 
 
     /*
@@ -266,6 +283,55 @@ public class SCRController {
         String result = "NERP is updated to " +resultNERP + ", SYnapse is updated to " + resultIA;
         return Result.success(result);
     }
+
+
+    /*
+        all missing transactions
+        nerp has it but synapse do not
+        return a nerp transaction
+    */
+    @GetMapping("/missingTransaction")
+    @Operation(summary = "missingTransactionSynapse")
+    public Result getMissingTransaction(@RequestParam String start, @RequestParam String end,@RequestParam String email) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        List<String> pathStringList = new ArrayList<>();
+        String file1 = "C:\\Users\\l.qin3\\Documents\\scheduled\\Synpase" + LocalDateTime.now().format(formatter).toString() +".csv";
+        String file2 = "C:\\Users\\l.qin3\\Documents\\scheduled\\Nerp"+ LocalDateTime.now().format(formatter).toString() + ".csv";
+        CompletableFuture task1 = scrAsyncTask.findMissingTransactionNERP(start,end).
+                thenAccept(result -> exportToCSVUtil.writeToCsv(file1,result));
+        CompletableFuture task2 = scrAsyncTask.findMissingTransactionSynapse(start,end).
+                thenAccept(result -> exportToCSVUtil.writeToCsv(file2,result));
+
+        CompletableFuture<Void> tasks = CompletableFuture.allOf(task1,task2);
+        tasks.thenRun(()->{
+            try {
+                int cnt = 0;
+                if(LocalFolderUtil.fileExists(file1)) {
+                    pathStringList.add(file1);
+                    cnt++;
+                }
+                if(LocalFolderUtil.fileExists(file2)) {
+                    pathStringList.add(file2);
+                    cnt++;
+                }
+                if(cnt != 0) emailService.sendEmail(email,"Your Scheduled File is Ready","Please see attached for Missing Transactions",pathStringList);
+                else  emailService.sendEmail(email,"Your Scheduled File is Ready - No Missing Transaction has been found","At" + LocalDateTime.now());
+
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }).thenRun(()->{
+            // delete the file being exported
+            LocalFolderUtil.deleteFile(file1);
+            LocalFolderUtil.deleteFile(file2);
+        });
+
+        return Result.success();
+    }
+
 }
 
 

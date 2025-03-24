@@ -603,4 +603,47 @@
         and abs(`UNS(NERP)`) - abs(`UNS(3PL)`) > 0
         and SLoc = 'WC1E';
     </select>
+    <select id="getMissingTransactionSynapse" resultType="com.ecom.pojo.entity.SKUActivityNERP">
+        select
+            a.`material`,
+            a.`plnt`,
+            a.`sloc`,
+            a.`mvt`,
+            a.`movement_type_text`,
+            a.`special_stock`,
+            a.`reference`,
+            a.`mat_doc`,
+            a.`post_date`,
+            date_format(time( date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) ,'%H:%i:%s') as `post_time`,
+            Date(date_sub(timestamp(str_to_date(`entry_date`,'%m/%d/%Y'),post_time), interval 15 Hour)) as `entry_date`,
+            a.`qty`,
+            a.`username`,
+            a.`doc_header`,
+            a.`val_type`
+        from scr_nerp a
+            left join scr_item_activity b
+        on a.`reference` = b. `reference`
+            and a.material = b.item
+        where
+            a.`reference` is not null and
+            a.`reference` !=''and
+            str_to_date(`post_date`,'%m/%d/%Y')
+            between #{start} and #{end}
+            and a.sloc != 'WR2E'
+            and b.item is null;
+    </select>
+    <select id="getMissingTransactionNerp" resultType="com.ecom.pojo.entity.SKUActivitySynapse">
+        select
+            a.*
+        from scr_item_activity a
+        left join  scr_nerp b
+        on a.`reference` = b. `reference`
+        and a.item = b.material
+        where a.slot != 'WR2E' and
+        a.`reference` !=''and
+        a.`reference` is not null and
+        str_to_date(transaction_date,'%m/%d/%Y')
+        between #{start} and #{end}
+        and b.material is null;
+    </select>
 </mapper>

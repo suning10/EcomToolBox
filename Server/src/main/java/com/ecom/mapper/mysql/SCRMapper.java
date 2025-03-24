@@ -76,4 +76,8 @@ public interface SCRMapper {
     List<ScrReportMaintainMove> getMovement(String date);
 
     List<ScrReportMaintainRemainToBlock> getRemainToBlock(String date);
+
+    List<SKUActivityNERP> getMissingTransactionSynapse(String start, String end);
+
+    List<SKUActivitySynapse> getMissingTransactionNerp(String start, String end);
 }
