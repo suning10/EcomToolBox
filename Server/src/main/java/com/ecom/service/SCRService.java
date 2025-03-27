@@ -52,4 +52,6 @@ public interface SCRService {
     String queryMaxDateNerp();
 
     String queryMaxDateSynapse();
+
+    List<SCRTrend> querySCRTrend(String start, String end);
 }

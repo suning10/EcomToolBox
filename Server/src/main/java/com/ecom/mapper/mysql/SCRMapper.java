@@ -80,4 +80,6 @@ public interface SCRMapper {
     List<SKUActivityNERP> getMissingTransactionSynapse(String start, String end);
 
     List<SKUActivitySynapse> getMissingTransactionNerp(String start, String end);
+
+    List<SCRTrend> getSCRTrend(String start, String end);
 }

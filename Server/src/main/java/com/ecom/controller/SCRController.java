@@ -332,6 +332,15 @@ public class SCRController {
         return Result.success();
     }
 
+    @GetMapping("/getSCRTrend")
+    @Operation(summary = "SCRTrend")
+    public Result<List<SCRTrend>> getSCRTrend (@RequestParam String start, @RequestParam String end) {
+
+        List<SCRTrend> result = scrService.querySCRTrend(start, end);
+
+        return Result.success(result);
+    }
+
 }
 
 

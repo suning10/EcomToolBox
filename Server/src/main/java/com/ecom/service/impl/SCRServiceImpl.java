@@ -249,6 +249,13 @@ public class SCRServiceImpl implements SCRService {
         return result;
     }
 
+    @Override
+    public List<SCRTrend> querySCRTrend(String start, String end) {
+
+        List<SCRTrend> result =  scrMapper.getSCRTrend(start, end);
+        return result;
+    }
+
     public List<ScrReportMaintainBlockUnblock> queryBlockUnblock(String date){
 
         List<ScrReportMaintainBlockUnblock> result = scrMapper.getBlockUnblock(date);

@@ -646,4 +646,18 @@
         between #{start} and #{end}
         and b.material is null;
     </select>
+    <select id="getSCRTrend" resultType="com.ecom.pojo.entity.SCRTrend">
+        select str_to_date(`Date`,'%m/%d/%Y') as `date`, SLoc as sloc,
+               cast(sum(abs(groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0))) as decimal(10,2)) as abs_gap_value,
+               sum(abs(groupGap) ) as abs_gap
+        from (select Material, Sloc,`Date`,sum(`Total(NERP)` - `Total(3PL)`) as groupGap
+              from scrraw
+              group by Material, Sloc,`Date`) a
+                 left join
+             price b
+             on a.Material = b.Material
+        where str_to_date(`Date`,'%m/%d/%Y') between #{start} and #{end}
+        group by Sloc , str_to_date(`Date`,'%m/%d/%Y');
+
+    </select>
 </mapper>
