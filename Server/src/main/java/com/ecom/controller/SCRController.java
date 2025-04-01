@@ -315,8 +315,8 @@ public class SCRController {
                     pathStringList.add(file2);
                     cnt++;
                 }
-                if(cnt != 0) emailService.sendEmail(email,"Your Scheduled File is Ready","Please see attached for Missing Transactions",pathStringList);
-                else  emailService.sendEmail(email,"Your Scheduled File is Ready - No Missing Transaction has been found","At" + LocalDateTime.now());
+                if(cnt != 0) emailService.sendEmail(email,"Your Scheduled File is Ready for " + start + " to " + end  ,"Please see attached for Missing Transactions",pathStringList);
+                else  emailService.sendEmail(email,"Your Scheduled File is Ready - No Missing Transaction has been found for "  + start + " to " + end ,"At" + LocalDateTime.now());
 
             } catch (MessagingException e) {
                 throw new RuntimeException(e);
