@@ -38,7 +38,7 @@ public class SCRTask {
     private ExecutableProperties executableProperties;
 
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 0 4,8 * * *")
     public void invokeSAP(){
         try{
             ProcessBuilder processBuilder = new ProcessBuilder();
