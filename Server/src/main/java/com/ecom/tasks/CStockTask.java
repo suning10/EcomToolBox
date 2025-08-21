@@ -1,5 +1,6 @@
 package com.ecom.tasks;
 
+import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.common.utils.exportToCSVUtil;
 import com.ecom.mapper.mysql.CStockMapper;
 import com.ecom.mapper.mysql.SCRMapper;
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +29,18 @@ public class CStockTask {
     private CStockServiceImpl cStockService;
     @Autowired
     private EmailServiceImpl emailService;
+    @Autowired
+    private LocalFolderUtil localFolderUtil;
     @Scheduled(cron = "0 0 5 * * *")
     public void cStockReport(){
         String filePath = "C:\\Users\\l.qin3\\Documents\\scheduled\\minStockQty.csv" ;
+        var fileProperty = localFolderUtil.getUpdateTime("locationNERP.txt");
+        String fileTIme =  fileProperty.get("updateTime").substring(0,10);
+        String day = LocalDate.now().toString();
+        fileProperty = localFolderUtil.getUpdateTime("locationInventory.txt");
+        String fileTImeS =  fileProperty.get("updateTime").substring(0,10);
+        String dayS = LocalDate.now().toString();
+        if(!fileTIme.equals(day) && !fileTIme.equals(dayS)) return;
         cStockService.prepareData();
         List<MinCStockVO> result = cStockService.getMinQtyCStock();
         exportToCSVUtil.writeToCsv(filePath,result);
