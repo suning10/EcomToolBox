@@ -67,7 +67,7 @@ public class CStockServiceImpl implements CStockService {
         cStockMapper.truncateTable("stg_location");
         cStockMapper.truncateTable("location");
         cStockMapper.truncateTable("stg_location_nerp");
-        cStockMapper.truncateTable("stg_location");
+        cStockMapper.truncateTable("location_nerp");
         // load into stg table
         String filePath = localFolderUtil.getUpdateTime("locationInventory.txt").get("filepath");
         cStockMapper.updateStgTable(filePath,0,"stg_location");
