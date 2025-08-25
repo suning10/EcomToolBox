@@ -4,6 +4,7 @@ package com.ecom.service.impl;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.common.utils.exportToCSVUtil;
 import com.ecom.mapper.mysql.CStockMapper;
+import com.ecom.pojo.dto.PUMIDTO;
 import com.ecom.pojo.entity.MinCStock;
 import com.ecom.pojo.entity.MinCStockSummary;
 import com.ecom.pojo.vo.MinCStockSummaryVO;
@@ -57,11 +58,16 @@ public class CStockServiceImpl implements CStockService {
         return resultSummary;
     }
 
+    @Override
+    public void uploadPUMI(List<PUMIDTO> pumidtos) {
+
+    }
+
     public void prepareData(){
         cStockMapper.truncateTable("stg_location");
         cStockMapper.truncateTable("location");
         cStockMapper.truncateTable("stg_location_nerp");
-        cStockMapper.truncateTable("stg_location_nerp");
+        cStockMapper.truncateTable("stg_location");
         // load into stg table
         String filePath = localFolderUtil.getUpdateTime("locationInventory.txt").get("filepath");
         cStockMapper.updateStgTable(filePath,0,"stg_location");

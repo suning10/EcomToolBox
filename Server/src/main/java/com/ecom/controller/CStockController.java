@@ -2,15 +2,14 @@ package com.ecom.controller;
 
 
 import com.ecom.common.result.Result;
+import com.ecom.pojo.dto.PUMIDTO;
 import com.ecom.pojo.vo.MinCStockSummaryVO;
 import com.ecom.pojo.vo.MinCStockVO;
 import com.ecom.service.CStockService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,6 +35,14 @@ public class CStockController {
 
         List<MinCStockSummaryVO> result = cStockService.getMinQtyCStockSummary();
         return Result.success(result);
+
+    }
+
+    @PostMapping("/uploadPUMI")
+    public Result uploadPUMI(@RequestBody List<PUMIDTO> pumidtos){
+
+        cStockService.uploadPUMI(pumidtos);
+        return Result.success();
 
     }
 }

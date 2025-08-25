@@ -30,7 +30,7 @@
         select b.item,
                least(ifnull(a.qty,0),b.qty) as min_qty
         from location_nerp a
-        right join
+        join
                 (select item, sum(quantity) as qty
                 from location
                 group by item) b

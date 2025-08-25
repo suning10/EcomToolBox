@@ -13,8 +13,9 @@ public class ConvertSKU {
         if(left4.equals("SM-S") || left4.equals( "SM-G") ||
                 left3 .equals("SM5") || left4 .equals("SM-F") || left4.equals("SM-A") ) return "HHP";
 
-        if(left3.equals("SM-L") || left5.equals( "SM-R8") ||
+        if(left4.equals("SM-L") || left5.equals( "SM-R8") ||
                 left5 .equals("SM-R9")) return "Watch";
+        if(left4.equals("SM-Q")) return "Ring";
         if(left3.equals("SM-R")) return "Wearable";
 
         if(left1.equals("E") || left1.equals( "G") ||
