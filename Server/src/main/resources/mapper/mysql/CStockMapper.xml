@@ -12,6 +12,15 @@
         where inv_status = 'CP'
           and (left(location,1) ='1' or left(location,1) ='0');
     </insert>
+    <insert id="insertSkuCategory">
+        insert into sku_category
+        values
+        <foreach collection="skuCategoryDTOs"  separator="," item="i" >
+            (#{i.sku},#{i.category},#{i.description})
+        </foreach>
+        on DUPLICATE KEY UPDATE
+        category = Values(category)
+    </insert>
 
 
     <update id="truncateTable">
@@ -28,13 +37,30 @@
 
     <select id="getMinQty" resultType="com.ecom.pojo.entity.MinCStock">
         select b.item,
-               least(ifnull(a.qty,0),b.qty) as min_qty
+               least(ifnull(a.qty,0),b.qty) as min_qty,c.category,ifnull(c.description, b.description) as `description`
         from location_nerp a
-        join
-                (select item, sum(quantity) as qty
-                from location
-                group by item) b
-        on a.sku = b.item;
+                 right join
+             (select item, description,sum(quantity) as qty
+              from location
+              group by item,description) b
+             on a.sku = b.item
+                 left join sku_category c on
+            a.sku = c.sku;
     </select>
+    <select id="getMinQtySummary" resultType="com.ecom.pojo.vo.MinCStockSummaryVO">
+        select category,sum(min_qty) as min_qty from (
+                                                         select b.item,
+                                                                least(ifnull(a.qty,0),b.qty) as min_qty,c.category
+                                                         from location_nerp a
+                                                                  right join
+                                                              (select item, sum(quantity) as qty
+                                                               from location
+                                                               group by item) b
+                                                              on a.sku = b.item
+                                                                  left join sku_category c on
+                                                             a.sku = c.sku) x
+        group by category;
+    </select>
+
 
 </mapper>

@@ -8,9 +8,10 @@ import java.util.List;
 
 
 @Data
-@Schema(description = "EDD")
+@Schema(description = "PUMIDTO")
 public class PUMIDTO implements Serializable{
     private String sku;
-    private String qty;
+    private String pumiQty;
+    private String pumiDate;
 
 }

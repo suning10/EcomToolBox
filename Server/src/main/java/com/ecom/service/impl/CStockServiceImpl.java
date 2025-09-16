@@ -2,11 +2,10 @@ package com.ecom.service.impl;
 
 
 import com.ecom.common.utils.LocalFolderUtil;
-import com.ecom.common.utils.exportToCSVUtil;
 import com.ecom.mapper.mysql.CStockMapper;
 import com.ecom.pojo.dto.PUMIDTO;
+import com.ecom.pojo.dto.skuCategoryDTO;
 import com.ecom.pojo.entity.MinCStock;
-import com.ecom.pojo.entity.MinCStockSummary;
 import com.ecom.pojo.vo.MinCStockSummaryVO;
 import com.ecom.pojo.vo.MinCStockVO;
 import com.ecom.service.CStockService;
@@ -30,37 +29,64 @@ public class CStockServiceImpl implements CStockService {
     private LocalFolderUtil localFolderUtil;
 
     @Override
-    public List<MinCStockVO> getMinQtyCStock() {
+    public List<MinCStock> getMinQtyCStock() {
 
         List<MinCStock> minCStocks = cStockMapper.getMinQty();
-        List<MinCStockVO> result = new ArrayList<>();
-        for(MinCStock m: minCStocks){
-            MinCStockVO mcs = new MinCStockVO(m.getItem(),m.getMinQty().trim(), ConvertSKU.convert(m.getItem()));
-            result.add(mcs);
-        }
 
-        return result;
+
+        return minCStocks;
     }
 
     @Override
     public List<MinCStockSummaryVO> getMinQtyCStockSummary() {
-        List<MinCStock> minCStocks = cStockMapper.getMinQty();
-        List<MinCStockVO> result = new ArrayList<>();
-        for(MinCStock m: minCStocks){
-            MinCStockVO mcs = new MinCStockVO(m.getItem(),m.getMinQty().trim(), ConvertSKU.convert(m.getItem()));
-            result.add(mcs);
-        }
-        List<MinCStockSummaryVO> resultSummary = result.stream().collect(Collectors.groupingBy(MinCStockVO::getCategory,
-                                                                                                Collectors.summingInt(x -> Integer.parseInt(x.getMinQty()) ))).
-                                                                                                entrySet().stream().map(e -> new MinCStockSummaryVO(e.getKey(),e.getValue())).
-                                                                                                collect(Collectors.toList());
+        List<MinCStockSummaryVO> minCStocksSummary = cStockMapper.getMinQtySummary();
+//        List<MinCStockSummaryVO> resultSummary = minCStocks.stream().collect(Collectors.groupingBy(MinCStock::getCategory,
+//                                                                                                Collectors.summingInt(x -> Integer.parseInt(x.getMinQty()) ))).
+//                                                                                                entrySet().stream().map(e -> new MinCStockSummaryVO(e.getKey(),e.getValue())).
+//                                                                                                collect(Collectors.toList());
 
-        return resultSummary;
+        return minCStocksSummary;
     }
 
     @Override
     public void uploadPUMI(List<PUMIDTO> pumidtos) {
 
+    }
+
+    @Override
+    public void uploadSKUCategory(List<skuCategoryDTO> skuCategoryDTOS) {
+        cStockMapper.insertSkuCategory(skuCategoryDTOS);
+    }
+
+    @Override
+    public List<skuCategoryDTO> getSkuCateogy() {
+        List<skuCategoryDTO> result = cStockMapper.getSkuCategory();
+        return result;
+    }
+
+    @Override
+    public void delSkuCateogy(String sku) {
+        cStockMapper.delSkuCategory(sku);
+    }
+
+    @Override
+    public void updateSkuCateogy(skuCategoryDTO skuCategoryDTO) {
+        cStockMapper.updateSkuCategory(skuCategoryDTO);
+    }
+
+    @Override
+    public skuCategoryDTO getSkuCateogyBYSKU(String sku) {
+        return cStockMapper.getSkuCategoryBySKU(sku);
+    }
+
+    @Override
+    public List<PUMIDTO> getPUMIAll() {
+        return cStockMapper.getPUMIAll();
+    }
+
+    @Override
+    public List<PUMIDTO> getPUMIByDate(String date) {
+        return cStockMapper.getPUMIByDate(date);
     }
 
     public void prepareData(){

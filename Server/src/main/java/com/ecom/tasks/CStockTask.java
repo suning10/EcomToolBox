@@ -2,10 +2,9 @@ package com.ecom.tasks;
 
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.common.utils.exportToCSVUtil;
-import com.ecom.mapper.mysql.CStockMapper;
-import com.ecom.mapper.mysql.SCRMapper;
-import com.ecom.pojo.vo.MinCStockVO;
-import com.ecom.service.CStockService;
+
+import com.ecom.pojo.entity.MinCStock;
+
 import com.ecom.service.impl.CStockServiceImpl;
 import com.ecom.service.impl.EmailServiceImpl;
 import jakarta.mail.MessagingException;
@@ -42,7 +41,7 @@ public class CStockTask {
         String dayS = LocalDate.now().toString();
         if(!fileTIme.equals(day) && !fileTIme.equals(dayS)) return;
         cStockService.prepareData();
-        List<MinCStockVO> result = cStockService.getMinQtyCStock();
+        List<MinCStock> result = cStockService.getMinQtyCStock();
         exportToCSVUtil.writeToCsv(filePath,result);
         List<String> attachments = new ArrayList<>();
         attachments.add(filePath);
