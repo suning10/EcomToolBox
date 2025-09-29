@@ -4,6 +4,7 @@ package com.ecom.tasks;
 import com.ecom.common.properties.ExecutableProperties;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.SCRMapper;
+import com.ecom.pojo.entity.SCRTrend;
 import com.ecom.pojo.entity.ScrReportSummary;
 import com.ecom.service.impl.EmailServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class SCRTask {
     private ExecutableProperties executableProperties;
 
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 0 4,8 * * *")
     public void invokeSAP(){
         try{
             ProcessBuilder processBuilder = new ProcessBuilder();
@@ -79,6 +81,9 @@ public class SCRTask {
         //load into actual table
         scrMapper.insert();
         List<ScrReportSummary> result = scrMapper.getSCRReportSummary("0");
+        //get trend
+        List<SCRTrend> scrTrendResult = scrMapper.getSCRTrend(LocalDate.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                                                                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         StringBuilder html = new StringBuilder();
         html.append("        <html>" +
                 "            <head>" +
@@ -139,7 +144,29 @@ public class SCRTask {
             html.append("</tr>");
         }
 
-        html.append("</tbody></table><br><p>To View Details, Please go to http://drtw-seaqlik.sea.samsung.com:8888/#/scr/scrReasearch </p><br><i>New SCR Research Has Been Added. Go to SCR Research -> SCR Research. You Can Check Activity on Items Have Gaps </i></body></html>");
+        html.append("</tbody></table><br> <p> SCR Trend </p>");
+        html.append("<table border = '1'>        " +
+                "               <thead>" +
+                "               <tr>" +
+                "               <th>Date</th>" +
+                "              <th>Sloc</th>" +
+                "              <th>Absolute Gap Cost</th>" +
+                "              <th>Absolute Gap</th>" +
+                "            </tr>" +
+                "        </thead>" +
+                "        <tbody> ");
+
+        for (SCRTrend scrTrend:scrTrendResult
+        ) {
+            html.append("<tr>");
+            html.append("<td>" + scrTrend.getDate() + "</td>" +
+                    "<td>" + scrTrend.getSloc() + "</td>" +
+                    "<td>" + scrTrend.getAbsGap() + "</td>" +
+                    "<td>" + scrTrend.getAbsGapValue() + "</td>"
+            );
+            html.append("</tr>");
+        }
+        html.append("</tbody></table><br><p>To View Details, Please go to http://drtw-seaqlik.sea.samsung.com:8888/#/scr/scrReasearch </p><br><i>New SCR Research Has Been Added. Go to SCR Research -> SCR Research. You Can Check Activity on Items Having Gaps/Or Performing DOD Research </i> <br><i>SCR Trend is Available at http://drtw-seaqlik.sea.samsung.com:8888/#/history </i></body></html>");
         var fileAttachment = this.generateSCR();
         try{
         emailService.sendEmail("eCommTeam@sea.samsung.com","SCR Summary",html.toString(),fileAttachment);}

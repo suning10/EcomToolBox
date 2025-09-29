@@ -3,6 +3,7 @@ package com.ecom.controller;
 import com.ecom.common.result.Result;
 import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
+import com.ecom.pojo.dto.RDOVerticaDTO;
 import com.ecom.pojo.entity.*;
 import com.ecom.service.VerticaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -111,6 +112,15 @@ public class VerticaController {
     public Result<List<EDD>> getNPSProduct(@RequestBody EDDDTO eDDdto){
 
         List<EDD> resultSet = verticaService.queryEDD(eDDdto);
+
+        return Result.success(resultSet);
+    }
+
+    @PostMapping("/RDOVertica")
+    @Operation(summary = "RDOVertica")
+    public Result<List<RDOVertica>> getRDOVertica(@RequestBody RDOVerticaDTO rdoDto){
+
+        List<RDOVertica> resultSet = verticaService.queryRDO(rdoDto);
 
         return Result.success(resultSet);
     }

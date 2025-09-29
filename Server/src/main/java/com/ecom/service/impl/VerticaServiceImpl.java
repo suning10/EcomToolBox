@@ -6,6 +6,7 @@ import com.ecom.common.result.Result;
 import com.ecom.mapper.vertica.VerticaMapper;
 import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
+import com.ecom.pojo.dto.RDOVerticaDTO;
 import com.ecom.pojo.entity.*;
 import com.ecom.service.VerticaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +133,16 @@ public class VerticaServiceImpl implements VerticaService {
         if(eDDdto.getSearchFlag().equals("TRACKING")) {
             return verticaMapper.queryEDDCe(eDDdto.getIdList(),2);
         }
+
+        return null;
+    }
+
+    @Override
+    public List<RDOVertica> queryRDO(RDOVerticaDTO rdoDto) {
+
+        if(rdoDto.getSearchFlag().equals("PO")) return verticaMapper.queryRDO(rdoDto.getIdList(),0);
+
+        if(rdoDto.getSearchFlag().equals("RDO")) return verticaMapper.queryRDO(rdoDto.getIdList(),1);
 
         return null;
     }

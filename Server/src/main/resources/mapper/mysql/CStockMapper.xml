@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ecom.mapper.mysql.CStockMapper">
+    <insert id="insertNERP">
+        insert into location_nerp
+        select sku, qty from stg_location_nerp;
+    </insert>
+    <insert id="insertSynapse">
+        insert into location
+        select location, item, description, inv_status, quantity
+        from stg_location
+        where inv_status = 'CP'
+          and (left(location,1) ='1' or left(location,1) ='0');
+    </insert>
+    <insert id="insertSkuCategory">
+        insert into sku_category
+        values
+        <foreach collection="skuCategoryDTOs"  separator="," item="i" >
+            (#{i.sku},#{i.category},#{i.description})
+        </foreach>
+        on DUPLICATE KEY UPDATE
+        category = Values(category)
+    </insert>
+
+
+    <update id="truncateTable">
+        truncate table ${tableName};
+    </update>
+    <update id="updateStgTable">
+        LOAD DATA local INFILE
+        #{path}
+        INTO TABLE ${tableName}
+        FIELDS TERMINATED BY '\t' ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE #{skip} LINES;
+    </update>
+
+    <select id="getMinQty" resultType="com.ecom.pojo.entity.MinCStock">
+        select b.item,
+               least(ifnull(a.qty,0),b.qty) as min_qty,c.category,ifnull(c.description, b.description) as `description`
+        from location_nerp a
+                 right join
+             (select item, description,sum(quantity) as qty
+              from location
+              group by item,description) b
+             on a.sku = b.item
+                 left join sku_category c on
+            a.sku = c.sku;
+    </select>
+    <select id="getMinQtySummary" resultType="com.ecom.pojo.vo.MinCStockSummaryVO">
+        select category,sum(min_qty) as min_qty from (
+                                                         select b.item,
+                                                                least(ifnull(a.qty,0),b.qty) as min_qty,c.category
+                                                         from location_nerp a
+                                                                  right join
+                                                              (select item, sum(quantity) as qty
+                                                               from location
+                                                               group by item) b
+                                                              on a.sku = b.item
+                                                                  left join sku_category c on
+                                                             a.sku = c.sku) x
+        group by category;
+    </select>
+
+
+</mapper>

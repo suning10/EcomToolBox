@@ -52,12 +52,11 @@ mybatis:
 
 logging:
   level:
-    Root: debug
-#    com:
-#      ecom:
-#        mapper: debug
-#        service: info
-#        controller: debug
+    root: error
+    com.zaxxer.hikari: off
+    sql: debug
+
+
 
 ecom:
   jwt:
