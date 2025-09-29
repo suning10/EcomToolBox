@@ -2,6 +2,7 @@ package com.ecom.service;
 
 import com.ecom.pojo.dto.EDDDTO;
 import com.ecom.pojo.dto.ParcelTrackingDTO;
+import com.ecom.pojo.dto.RDOVerticaDTO;
 import com.ecom.pojo.entity.*;
 import org.springframework.stereotype.Service;
 
@@ -31,4 +32,6 @@ public interface VerticaService {
     List<OriginScanUPS> shipNotTenderUPS(String start, String end);
 
     List<EDDCe> queryEDDCe(EDDDTO eDDdto);
+
+    List<RDOVertica> queryRDO(RDOVerticaDTO rdoDto);
 }

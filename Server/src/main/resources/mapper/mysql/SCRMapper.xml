@@ -554,9 +554,11 @@
         b.`Date` as `date` ,'move_to_wc1e' as 'action_1', least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))) as 'qty_to_move_1',
         'move_to_WR3E' as action_2,
         abs(least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)) - abs(abs(ifnull(c.`Total(NERP)`,0)) - abs(ifnull(c.`Total(3PL)`,0))),
-        abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`)) -
-        least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))))
-        ) as qty_to_move_2
+                         abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`)) -
+                         least(abs(abs(a.`Total(NERP)`) - abs(a.`Total(3PL)`)), abs(abs(b.`Total(NERP)`) - abs(b.`Total(3PL)`))),
+                         abs(abs(ifnull(c.`Total(NERP)`,0)) - abs(ifnull(c.`Total(3PL)`,0)))
+                   )
+                   )as qty_to_move_2
         from (
         select * from scrraw
         where SLoc = 'WC1E' and
