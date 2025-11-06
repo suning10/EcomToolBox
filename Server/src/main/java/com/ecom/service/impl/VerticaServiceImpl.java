@@ -147,5 +147,50 @@ public class VerticaServiceImpl implements VerticaService {
         return null;
     }
 
+    @Override
+    public List<EDDSummary> queryOTD() {
+
+        List<EDDSummary> summary = verticaMapper.getOTDForWeek();
+        summary.stream().forEach(edd -> {
+            double num = Double.parseDouble(edd.getOtd());
+            edd.setOtd(String.format("%.2f%%",num * 100));
+        });
+
+        return summary;
+    }
+
+    @Override
+    public List<EDDOTDDetail> queryOTDDetailYesterday() {
+        List<EDDOTDDetail> result  = verticaMapper.getOTDDetail();
+//        result.stream().forEach(data->{
+//            data.setTracking("'" + data.getTracking());
+//        });
+        return result;
+    }
+
+    @Override
+    public List<EDDCarrierSummary> queryOTDByCarrier() {
+        List<EDDCarrierSummary> summary = verticaMapper.getOTDForWeekByCarrier();
+        summary.stream().forEach(edd -> {
+            double num = Double.parseDouble(edd.getOtd());
+            edd.setOtd(String.format("%.2f%%",num * 100));
+        });
+
+        return summary;
+
+    }
+
+    @Override
+    public List<EDDCarrierSummary> queryOTDSummaryByCarrier() {
+        List<EDDCarrierSummary> summary = verticaMapper.getOTDForWeekByCarrierSummary();
+        summary.stream().forEach(edd -> {
+            double num = Double.parseDouble(edd.getOtd());
+            edd.setOtd(String.format("%.2f%%",num * 100));
+        });
+
+        return summary;
+
+    }
+
 
 }

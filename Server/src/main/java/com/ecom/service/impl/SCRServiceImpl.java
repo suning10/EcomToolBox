@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -117,6 +118,33 @@ public class SCRServiceImpl implements SCRService {
     public List<ScrReportSummary> queryScrReportSummary(String date) {
 
         List<ScrReportSummary> result = scrMapper.getSCRReportSummary(date);
+        //use big decimal to transform string to decimal
+        BigDecimal totalAbsGapCost = BigDecimal.ZERO;
+        BigDecimal totalNetCost = BigDecimal.ZERO;
+        BigDecimal totalAbsGap= BigDecimal.ZERO;
+        BigDecimal totalNetGap= BigDecimal.ZERO;
+        BigDecimal totalNerpOverage= BigDecimal.ZERO;
+        BigDecimal totalSynapseOverage= BigDecimal.ZERO;
+        BigDecimal totalCost= BigDecimal.ZERO;
+        BigDecimal totalQty= BigDecimal.ZERO;
+        //loop to fill in the total
+        for(ScrReportSummary reportSummary:result){
+            totalAbsGapCost =  totalAbsGapCost.add(new BigDecimal(reportSummary.getAbsoluteGapCost()));
+            totalNetCost = totalNetCost.add(new BigDecimal(reportSummary.getNetGapCost()));
+            totalAbsGap = totalAbsGap.add(new BigDecimal(reportSummary.getAbsoluteGap()));
+            totalNetGap = totalNetGap.add(new BigDecimal(reportSummary.getNetGap()));
+            totalNerpOverage = totalNerpOverage.add(new BigDecimal(reportSummary.getNerpOverage()));
+            totalSynapseOverage = totalSynapseOverage.add(new BigDecimal(reportSummary.getSynapseOverage()));
+            totalCost = totalCost.add(new BigDecimal(reportSummary.getTotalValue()));
+            totalQty = totalQty.add(new BigDecimal(reportSummary.getTotalQty()));
+
+        }
+        ScrReportSummary total = new ScrReportSummary("total",totalAbsGapCost.toString(),totalNetCost.toString(),
+                                                        totalAbsGap.toString(),totalNetGap.toString(),"","",
+                                                        totalNerpOverage.toString(),
+                                                        totalSynapseOverage.toString(),
+                                                        totalCost.toString(),totalQty.toString());
+        result.add(total);
         return result;
     }
 

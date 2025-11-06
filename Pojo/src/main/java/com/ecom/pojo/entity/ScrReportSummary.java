@@ -23,5 +23,8 @@ public class ScrReportSummary implements Serializable {
     private String skuWithErrorNumber;
     private String nerpOverage;
     private String synapseOverage;
+    private String totalValue;
+    private String totalQty;
+
 
 }

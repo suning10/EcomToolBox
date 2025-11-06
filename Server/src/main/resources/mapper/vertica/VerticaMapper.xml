@@ -201,7 +201,7 @@
         fr.po_id ,
         frsl.so_id,
         forward_do_id as odo,
-        do_id as rdo,
+        frsl.do_id as rdo,
         sku,
         frsl.quantity,
         fr.refund_status ,
@@ -215,16 +215,22 @@
         label_generated_ts,
         initiated_ts ,
         return_sub_reason_code ,
-        return_address_id
+        return_address_id,
+        frsl.so_line_id,
+        foli.so_id as outbound_so_id
         from edw.fact_returns_v4 fr
         join edw.fact_purchase_order_line_item fpol
         on fr.return_line_item_id = fpol.line_item_id
         join edw.fact_return_so_line_item frsl
         on fpol.return_request_id = frsl.return_request_id and fpol.model_code = frsl.sku
+        join edw.fact_order_line_items foli on
+        foli.po_id = fpol.po_id and foli.shipped_sku = frsl.sku
         where
         fr.is_active = 1
         and frsl.is_active = 1
         and fpol.is_active = 1
+        and foli.is_active = 1
+        and foli.product_type = 'physical'
         <if test="flag == 0">
             and fr.po_id in
             <foreach collection="ids"  separator="," open="(" close=")" item="id" >
@@ -237,6 +243,122 @@
                 #{id}
             </foreach>
         </if>
+
+    </select>
+    <select id="getOTDForWeek" resultType="com.ecom.pojo.entity.EDDSummary">
+        select
+        a.*,b.cnt_total, 1-a.cnt_miss/b.cnt_total as otd
+        from
+        (select current_promise_delivery_ts::Date as edd,count(distinct foli.tracking_id) as cnt_miss
+        from edw.fact_order_line_items foli
+        where foli.is_active = 1
+        and current_promise_delivery_ts::Date >= TRUNC(Trunc(CURRENT_DATE,'IW'))
+        and current_promise_delivery_ts::Date &lt; CURRENT_DATE
+                                                and product_type = 'physical'
+                                                and physical_fulfiller_id = 'geodis'
+                                                and (delivered_ts is null or (foli.delivered_ts - INTERVAL '6 hour')::Date > foli.current_promise_delivery_ts)
+        group by current_promise_delivery_ts::Date) a
+        join
+        (select current_promise_delivery_ts::Date as edd,count(distinct foli.tracking_id)  as cnt_total
+        from edw.fact_order_line_items foli
+        where foli.is_active =1
+        and current_promise_delivery_ts::Date >= TRUNC(Trunc(CURRENT_DATE,'IW'))
+        and current_promise_delivery_ts::Date &lt; CURRENT_DATE
+                                                and product_type = 'physical'
+                                                and physical_fulfiller_id = 'geodis'
+                                                group by current_promise_delivery_ts::Date) b
+        on a.edd = b.edd
+        order by a.edd;
+
+    </select>
+    <select id="getOTDDetail" resultType="com.ecom.pojo.entity.EDDOTDDetail">
+        select
+            foli.po_id ,fulfillment_delivery_do_id as do_id ,
+            foli.finance_plan_id,
+            foli.shipped_sku,
+            foli.shipping_amt,
+            foli.physical_fulfiller_id,
+            UPPER(tracking_id) as tracking,
+            foli.order_dt::Date as order_date,
+            current_promise_delivery_ts::Date as EDD,
+            foli.delivered_ts::Date,
+            foli.ship_date_ts::date,
+            v.promised_ship_dt,
+            foli.fulfillment_carrier_id,
+            shipment_status
+        from edw.fact_order_line_items foli
+            left join edw.fact_fulfillment_edd_v4 v
+            on foli.line_item_id = v.line_item_id
+        where foli.is_active =1 and v.is_active = 1
+            and current_promise_delivery_ts::Date = CURRENT_DATE -1
+            and product_type = 'physical'
+            and physical_fulfiller_id = 'geodis'
+            and (delivered_ts is null or (foli.delivered_ts - INTERVAL '6 hour')::Date > foli.current_promise_delivery_ts);
+    </select>
+    <select id="getOTDForWeekByCarrier" resultType="com.ecom.pojo.entity.EDDCarrierSummary">
+        select
+        a.edd, a.fulfillment_carrier_id as carrier, a.carrier_service as service_level,
+        a.cnt_miss,
+        b.cnt_total,
+
+        1-a.cnt_miss/b.cnt_total as otd
+        from
+        (select current_promise_delivery_ts::Date as edd, fulfillment_carrier_id,
+        case when carrier_service_name = '' then 'U2' else carrier_service_name END as carrier_service
+        ,count(distinct foli.tracking_id) as cnt_miss
+        from edw.fact_order_line_items foli
+        where foli.is_active = 1
+        and current_promise_delivery_ts::Date >= TRUNC(Trunc(CURRENT_DATE,'IW'))
+        and current_promise_delivery_ts::Date &lt; CURRENT_DATE
+                                                and product_type = 'physical'
+                                                and physical_fulfiller_id = 'geodis'
+                                                and (delivered_ts is null or (foli.delivered_ts - INTERVAL '6 hour')::Date > foli.current_promise_delivery_ts)
+        group by current_promise_delivery_ts::Date,fulfillment_carrier_id,case when carrier_service_name = '' then 'U2' else carrier_service_name END ) a
+        join
+        (select current_promise_delivery_ts::Date as edd,fulfillment_carrier_id,
+        case when carrier_service_name = '' then 'U2' else carrier_service_name END as carrier_service
+        ,count(distinct foli.tracking_id)  as cnt_total
+        from edw.fact_order_line_items foli
+        where foli.is_active =1
+        and current_promise_delivery_ts::Date >= TRUNC(Trunc(CURRENT_DATE,'IW'))
+        and current_promise_delivery_ts::Date &lt; CURRENT_DATE
+                                                and product_type = 'physical'
+                                                and physical_fulfiller_id = 'geodis'
+                                                group by current_promise_delivery_ts::Date, fulfillment_carrier_id,case when carrier_service_name = '' then 'U2' else carrier_service_name END) b
+        on a.edd = b.edd and a.fulfillment_carrier_id = b.fulfillment_carrier_id and a.carrier_service = b.carrier_service
+        order by a.edd;
+    </select>
+    <select id="getOTDForWeekByCarrierSummary" resultType="com.ecom.pojo.entity.EDDCarrierSummary">
+        select
+        a.fulfillment_carrier_id as carrier, a.carrier_service as service_level,
+        a.cnt_miss,
+        b.cnt_total,
+        1-a.cnt_miss/b.cnt_total as otd
+        from
+        (select  fulfillment_carrier_id,
+        case when carrier_service_name = '' then 'U2' else carrier_service_name END as carrier_service
+        ,count(distinct foli.tracking_id) as cnt_miss
+        from edw.fact_order_line_items foli
+        where foli.is_active = 1
+        and current_promise_delivery_ts::Date >= TRUNC(Trunc(CURRENT_DATE,'IW'))
+        and current_promise_delivery_ts::Date &lt; CURRENT_DATE
+                                                and product_type = 'physical'
+                                                and physical_fulfiller_id = 'geodis'
+                                                and (delivered_ts is null or (foli.delivered_ts - INTERVAL '6 hour')::Date > foli.current_promise_delivery_ts)
+        group by fulfillment_carrier_id,case when carrier_service_name = '' then 'U2' else carrier_service_name END ) a
+        join
+        (select fulfillment_carrier_id,
+        case when carrier_service_name = '' then 'U2' else carrier_service_name END as carrier_service
+        ,count(distinct foli.tracking_id)  as cnt_total
+        from edw.fact_order_line_items foli
+        where foli.is_active =1
+        and current_promise_delivery_ts::Date >= TRUNC(Trunc(CURRENT_DATE,'IW'))
+        and current_promise_delivery_ts::Date &lt; CURRENT_DATE
+                                                and product_type = 'physical'
+                                                and physical_fulfiller_id = 'geodis'
+                                                group by  fulfillment_carrier_id,case when carrier_service_name = '' then 'U2' else carrier_service_name END) b
+        on a.fulfillment_carrier_id = b.fulfillment_carrier_id and a.carrier_service = b.carrier_service
+        order by carrier;
 
     </select>
 </mapper>

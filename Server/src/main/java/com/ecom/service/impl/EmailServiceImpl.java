@@ -36,6 +36,22 @@ public class EmailServiceImpl {
         javaMailSender.send(mimeMailMessage);
     }
 
+    public void sendEmail(String[] toEmail, String subject, String body,  List<String> attachmentPath ) throws MessagingException, UnsupportedEncodingException {
+
+        var mimeMailMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMailMessage,true);
+        mimeMessageHelper.setTo(toEmail);
+        mimeMessageHelper.setFrom("l.qin3@partner.sea.samsung.com","Lang Qin");
+        mimeMessageHelper.setSubject(subject);
+        mimeMessageHelper.setText(body,true);
+        for (var filepath: attachmentPath
+        ) {
+            FileSystemResource file  = new FileSystemResource(new File(filepath));
+            mimeMessageHelper.addAttachment(file.getFilename(),file);
+        }
+        javaMailSender.send(mimeMailMessage);
+    }
+
     public void sendEmail(String toEmail, String subject, String body) throws MessagingException, UnsupportedEncodingException {
 
         var mimeMailMessage = javaMailSender.createMimeMessage();

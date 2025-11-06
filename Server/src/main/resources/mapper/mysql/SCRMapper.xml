@@ -110,7 +110,8 @@
     </select>
     <select id="postSKUDetailNERPAdj" resultType="com.ecom.pojo.entity.SKUActivityNERP">
 
-        select             `material`,
+        select
+        `material`,
         `plnt`,
         `sloc`,
         `mvt`,
@@ -202,15 +203,17 @@
     </select>
     <select id="getSCRReportSummary" resultType="com.ecom.pojo.entity.ScrReportSummary">
         select SLoc as sloc,
-        cast(sum(abs(groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0))) as decimal(10,2)) as absolute_gap_cost,
-        cast(sum((groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0))) as decimal(10,2)) as net_gap_cost,
+        cast(sum(abs(groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)* 0.7,ifnull(b.mapPrice,0))) as decimal(10,2)) as absolute_gap_cost,
+        cast(sum((groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)* 0.7,ifnull(b.mapPrice,0))) as decimal(10,2)) as net_gap_cost,
         sum(abs(groupGap) ) as absolute_gap,
         sum(groupGap) as `net_gap`,
         cast(sum(if(abs(groupGap)> 0,1,0))/count(1) * 100 as decimal(10,2)) as `sku_with_error`,
         sum(if(abs(groupGap) > 0,1,0)) as `sku_with_error_number`,
-        cast(sum(if(groupGap > 0, groupGap * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0)),0)) as decimal(10,2)) as `nerp_overage`,
-        cast(sum(if(groupGap &lt; 0,groupGap * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0)),0)) as decimal(10,2)) as `synapse_overage`
-        from (select Material, Sloc,`Date`,sum(`Total(NERP)` - `Total(3PL)`) as groupGap
+        cast(sum(if(groupGap > 0, groupGap * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)* 0.7,ifnull(b.mapPrice,0)),0)) as decimal(10,2)) as `nerp_overage`,
+        cast(sum(if(groupGap &lt; 0,groupGap * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)* 0.7,ifnull(b.mapPrice,0)),0)) as decimal(10,2)) as `synapse_overage`,
+        cast(sum(total_qty * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)* 0.7,ifnull(b.mapPrice,0))) as decimal(10,2)) as total_value,
+        sum(total_qty) as total_qty
+        from (select Material, Sloc,`Date`,sum(`Total(NERP)` - `Total(3PL)`) as groupGap,sum(`Total(3PL)`) as total_qty
         from scrraw
         group by Material, Sloc,`Date`) a
         left join
@@ -231,8 +234,8 @@
         order by TotGap desc;
     </select>
     <select id="getSCRReportGapWR2E" resultType="com.ecom.pojo.entity.ScrReportGap">
-        select a.Material as material ,a.Description as description ,`Total(3PL)` as `synapse_total`,`Total(NERP)` as `nerp_total`, TotGap as total_gap, TotGap * ifnull(b.mapPrice/2,0) as abs_map_value,
-               `Total(NERP)` - `Total(3PL)` as net_gap, (`Total(NERP)` - `Total(3PL)`) * ifnull(b.mapPrice/2,0) as net_gap_map_value,sloc
+        select a.Material as material ,a.Description as description ,`Total(3PL)` as `synapse_total`,`Total(NERP)` as `nerp_total`, TotGap as total_gap, TotGap * ifnull(b.mapPrice* 0.7,0) as abs_map_value,
+               `Total(NERP)` - `Total(3PL)` as net_gap, (`Total(NERP)` - `Total(3PL)`) * ifnull(b.mapPrice* 0.7,0) as net_gap_map_value,sloc
         from scrraw a
                  left join
              price b
@@ -266,7 +269,7 @@
                `SLoc` as sloc,
                `valType` as val_type,
                `Date` as `date`,
-               ifnull(b.mapPrice/2 * TotGap ,'999') as `absolute_gap_value`
+               ifnull(b.mapPrice* 0.7 * TotGap ,'999') as `absolute_gap_value`
         from scrraw a
         left join price b
         on a.Material = b.Material
@@ -293,7 +296,7 @@
                `SLoc` as sloc,
                `valType` as val_type,
                `Date` as `date`,
-               ifnull(cast(if(a.valType = 'C',b.mapPrice/2,b.mapPrice) * TotGap  as decimal(10,2)),'999')  as `absolute_gap_value`
+               ifnull(cast(if(a.valType = 'C',b.mapPrice* 0.7,b.mapPrice) * TotGap  as decimal(10,2)),'999')  as `absolute_gap_value`
         from scrraw a
                  left join price b
                            on a.Material = b.Material
@@ -661,7 +664,7 @@
     </select>
     <select id="getSCRTrend" resultType="com.ecom.pojo.entity.SCRTrend">
         select str_to_date(`Date`,'%m/%d/%Y') as `date`, SLoc as sloc,
-               cast(sum(abs(groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)/2,ifnull(b.mapPrice,0))) as decimal(10,2)) as abs_gap_value,
+               cast(sum(abs(groupGap) * if(Sloc= 'WR2E',ifnull(b.mapPrice,0)* 0.7,ifnull(b.mapPrice,0))) as decimal(10,2)) as abs_gap_value,
                sum(abs(groupGap) ) as abs_gap
         from (select Material, Sloc,`Date`,sum(`Total(NERP)` - `Total(3PL)`) as groupGap
               from scrraw

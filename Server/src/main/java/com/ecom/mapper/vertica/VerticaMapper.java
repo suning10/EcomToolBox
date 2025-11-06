@@ -42,4 +42,12 @@ public interface VerticaMapper {
     List<EDDCe> queryEDDCe(@Param("ids") List<String> idList, @Param("flag") int i);
 
     List<RDOVertica> queryRDO(@Param("ids")List<String> idList, @Param("flag")int i);
+
+    List<EDDSummary> getOTDForWeek();
+
+    List<EDDOTDDetail> getOTDDetail();
+
+    List<EDDCarrierSummary> getOTDForWeekByCarrier();
+
+    List<EDDCarrierSummary> getOTDForWeekByCarrierSummary();
 }

@@ -125,5 +125,41 @@ public class VerticaController {
         return Result.success(resultSet);
     }
 
+    @GetMapping("/OTDVertica")
+    @Operation(summary = "OTDSummaryVertica")
+    public Result<List<EDDSummary>> getOTDVertica(){
+
+        List<EDDSummary> resultSet = verticaService.queryOTD();
+
+        return Result.success(resultSet);
+    }
+
+    @GetMapping("/OTDYesterdayVertica")
+    @Operation(summary = "OTDDetailYesterdayVertica")
+    public Result<List<EDDOTDDetail>> getOTDDetailYesterdayVertica(){
+
+        List<EDDOTDDetail> resultSet = verticaService.queryOTDDetailYesterday();
+
+        return Result.success(resultSet);
+    }
+
+    @GetMapping("/OTDVerticaBYCarrier")
+    @Operation(summary = "OTDSummaryVerticaCarrier")
+    public Result<List<EDDCarrierSummary>> getOTDByCarrierVertica(){
+
+        List<EDDCarrierSummary> resultSet = verticaService.queryOTDByCarrier();
+
+        return Result.success(resultSet);
+    }
+
+    @GetMapping("/OTDSummaryByCarrier")
+    @Operation(summary = "OTDSummaryVerticaCarrierLevel")
+    public Result<List<EDDCarrierSummary>> getOTDSummaryByCarrierVertica(){
+
+        List<EDDCarrierSummary> resultSet = verticaService.queryOTDSummaryByCarrier();
+
+        return Result.success(resultSet);
+    }
+
 
 }

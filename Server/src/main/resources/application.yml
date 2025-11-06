@@ -33,15 +33,6 @@ spring:
     port: 25
     auth: false
 
-
-
-
-
-
-
-
-
-
 mybatis:
   #mapper????
   mapper-locations: classpath:mapper/**/*.xml
@@ -55,8 +46,6 @@ logging:
     root: error
     com.zaxxer.hikari: off
     sql: debug
-
-
 
 ecom:
   jwt:
@@ -73,4 +62,14 @@ ecom:
 
   local-upload-folder:
     path: ${ecom.local-upload-folder.path}
+
+  email-list:
+    cstock:
+      #- l.qin3@partner.sea.samsung.com
+      #- l.qin3@sea.samsung.com
+      - eCommTeam@sea.samsung.com
+      - m.pavlou@sea.samsung.com
+      - charles1.k@sea.samsung.com
+      - n.doan@sea.samsung.com
+
 

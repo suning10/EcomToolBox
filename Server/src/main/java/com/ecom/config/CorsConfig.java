@@ -37,6 +37,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
         interceptorRegistry.addInterceptor(jwtTokenInterceptor)
                 .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/user/login");
+                .excludePathPatterns("/admin/user/login")
+                .excludePathPatterns("/admin/kpi/**");
     }
 }

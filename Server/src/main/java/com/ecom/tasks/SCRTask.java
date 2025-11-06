@@ -6,12 +6,12 @@ import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.mapper.mysql.SCRMapper;
 import com.ecom.pojo.entity.SCRTrend;
 import com.ecom.pojo.entity.ScrReportSummary;
+import com.ecom.service.SCRService;
 import com.ecom.service.impl.EmailServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +32,9 @@ public class SCRTask {
     private EmailServiceImpl emailService;
     @Autowired
     private SCRMapper scrMapper;
+
+    @Autowired
+    private SCRService scrService;
 
     @Autowired
     private LocalFolderUtil localFolderUtil;
@@ -69,9 +72,8 @@ public class SCRTask {
         var fileProperty = localFolderUtil.getUpdateTime("scrReport.txt");
         String fileTIme =  fileProperty.get("updateTime").substring(0,10);
         if(!fileTIme.equals(day)) return;
-//        int tableDateCnt = scrMapper.getTableDate("scrraw","Date",day);
-//        if(tableDateCnt < 2) return;
-//        //load data here
+
+        //load data here
 
         scrMapper.truncateTable("stagingscrraw");
         scrMapper.updateStgTable(fileProperty.get("filepath"),5,"stagingscrraw");
@@ -80,7 +82,7 @@ public class SCRTask {
         if(tableDateCnt > 1) return;
         //load into actual table
         scrMapper.insert();
-        List<ScrReportSummary> result = scrMapper.getSCRReportSummary("0");
+        List<ScrReportSummary> result = scrService.queryScrReportSummary("0");
         //get trend
         List<SCRTrend> scrTrendResult = scrMapper.getSCRTrend(LocalDate.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                                                                 LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
@@ -125,6 +127,8 @@ public class SCRTask {
                 "              <th># SKUs with Error</th>" +
                 "              <th>NERP Overage</th>" +
                 "              <th>Synapse Overage</th>" +
+                "              <th>Total Value</th>" +
+                "              <th>Total Qty</th>" +
                 "            </tr>" +
                 "        </thead>" +
                 "        <tbody> ");
@@ -139,7 +143,9 @@ public class SCRTask {
                     "<td>" + scrReportSummary.getNetGap() + "</td>" + "<td>" +
                             scrReportSummary.getSkuWithError()+ "</td>" + "<td>" + scrReportSummary.getSkuWithErrorNumber() + "</td>" +
                             "<td>" + scrReportSummary.getNerpOverage() + "</td>" +
-                            "<td>" + scrReportSummary.getSynapseOverage() + "</td>"
+                            "<td>" + scrReportSummary.getSynapseOverage() + "</td>"+
+                            "<td>" + scrReportSummary.getTotalValue() + "</td>"+
+                            "<td>" + scrReportSummary.getTotalQty() + "</td>"
                     );
             html.append("</tr>");
         }

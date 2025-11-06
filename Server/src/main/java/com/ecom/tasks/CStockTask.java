@@ -1,5 +1,6 @@
 package com.ecom.tasks;
 
+import com.ecom.common.properties.EmailListrProperties;
 import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.common.utils.exportToCSVUtil;
 
@@ -30,6 +31,8 @@ public class CStockTask {
     private EmailServiceImpl emailService;
     @Autowired
     private LocalFolderUtil localFolderUtil;
+    @Autowired
+    private EmailListrProperties emailListrProperties;
     @Scheduled(cron = "0 0 5 * * *")
     public void cStockReport(){
         String filePath = "C:\\Users\\l.qin3\\Documents\\scheduled\\minStockQty.csv" ;
@@ -39,14 +42,15 @@ public class CStockTask {
         fileProperty = localFolderUtil.getUpdateTime("locationInventory.txt");
         String fileTImeS =  fileProperty.get("updateTime").substring(0,10);
         String dayS = LocalDate.now().toString();
-        if(!fileTIme.equals(day) && !fileTIme.equals(dayS)) return;
+        if(!fileTIme.equals(day) && !fileTImeS.equals(dayS)) return;
         cStockService.prepareData();
         List<MinCStock> result = cStockService.getMinQtyCStock();
         exportToCSVUtil.writeToCsv(filePath,result);
         List<String> attachments = new ArrayList<>();
         attachments.add(filePath);
+        String[] emailTo = emailListrProperties.getCstock();
         try {
-            emailService.sendEmail("eCommTeam@sea.samsung.com","CStock Pull@" + LocalDateTime.now(),"Please see attached",attachments);
+            emailService.sendEmail(emailTo,"CStock Pull@" + LocalDateTime.now(),"Please see attached",attachments);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {

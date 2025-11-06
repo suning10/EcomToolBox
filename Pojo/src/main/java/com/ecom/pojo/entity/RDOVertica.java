@@ -29,4 +29,6 @@ public class RDOVertica implements Serializable {
     private String initiatedTs;
     private String returnSubReasonCode;
     private String returnAddressId;
+    private String soLineId;
+    private String outboundSoId;
 }

@@ -34,4 +34,12 @@ public interface VerticaService {
     List<EDDCe> queryEDDCe(EDDDTO eDDdto);
 
     List<RDOVertica> queryRDO(RDOVerticaDTO rdoDto);
+
+    List<EDDSummary> queryOTD();
+
+    List<EDDOTDDetail> queryOTDDetailYesterday();
+
+    List<EDDCarrierSummary> queryOTDByCarrier();
+
+    List<EDDCarrierSummary> queryOTDSummaryByCarrier();
 }
