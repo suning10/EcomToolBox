@@ -50,4 +50,7 @@ public interface VerticaMapper {
     List<EDDCarrierSummary> getOTDForWeekByCarrier();
 
     List<EDDCarrierSummary> getOTDForWeekByCarrierSummary();
+
+
+    List<agedReturnVertica> queryAgedReturnDashboard(@Param("rdoList")List<String> rdoList);
 }

@@ -361,4 +361,49 @@
         order by carrier;
 
     </select>
+    <select id="queryAgedReturnDashboard" resultType="com.ecom.pojo.entity.agedReturnVertica">
+        select
+            fr.po_id ,
+            frsl.so_id,
+            forward_do_id as odo,
+            frsl.do_id as rdo,
+            sku,
+            frsl.quantity,
+            fr.refund_status ,
+            returns_channel ,
+            return_reason ,
+            return_tracking_id ,
+            return_status ,
+            return_shipped_ts ,
+            return_delivered_ts ,
+            return_shipped_ts,
+            label_generated_ts,
+            initiated_ts ,
+            return_sub_reason_code ,
+            return_address_id,
+            frsl.so_line_id ,
+            foli.so_id,
+            fdx.statusdetail_code as statusdetail,
+            fdx.statusdetail_description,
+            fdx.statusdetail_ts
+        from edw.fact_returns_v4 fr
+                 join edw.fact_purchase_order_line_item fpol
+                      on fr.return_line_item_id = fpol.line_item_id
+                 join edw.fact_return_so_line_item frsl
+                      on fpol.return_request_id = frsl.return_request_id and fpol.model_code = frsl.sku
+                 join edw.fact_order_line_items foli on
+            foli.po_id = fpol.po_id and foli.shipped_sku = frsl.sku
+                 left join edw.fact_fedex_shipment_tracking_v4 fdx on fdx.tracking_id = fr.return_tracking_id
+        where
+            fr.is_active = 1
+          and frsl.is_active = 1
+          and fpol.is_active = 1
+          and foli.is_active = 1
+          and fdx.is_active = 1
+          and frsl.do_id in
+            <foreach collection="rdoList"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        and foli.product_type = 'physical';
+    </select>
 </mapper>

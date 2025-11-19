@@ -67,4 +67,27 @@
         on return_search_simple.rdo = rdoList.rdo
 
     </select>
+    <select id="getAgedReturnNERP" resultType="com.ecom.pojo.entity.agedReturnNerp">
+        SELECT
+            bol,po,`do` as `DO`,material,qty,rdd,planned_gi,sloc,document_date,delivery_qty,reference_doc,createdby,
+            datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) as aged_days,
+            case when
+                     datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) between 0 and 15
+                     then '1-15'
+                 when datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) between 16 and 30
+                     then '16-30'
+                 when datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) between 31 and 45
+                     then '31-45'
+                 when datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) between 45 and 60
+                     then '45-60'
+                 when datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) > 60
+                     then '60+'
+                end as aged_bucket,
+            case when bol != ''
+                    then 'Refusal'
+                 else 'Return'
+                end as flag_refusal
+
+        FROM agedreturnnerp;
+    </select>
 </mapper>

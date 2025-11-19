@@ -7,17 +7,16 @@ import com.ecom.common.utils.LocalFolderUtil;
 import com.ecom.pojo.dto.SearchByRDODTO;
 import com.ecom.pojo.entity.Return;
 import com.ecom.pojo.entity.ReturnSimple;
+import com.ecom.pojo.vo.agedReturnDashboardVO;
 import com.ecom.service.ReturnSearchService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -74,6 +73,19 @@ public class ReturnSearchController {
         returnSearchService.uploadSimple(file);
 
         return Result.success();
+    }
+
+    @PostMapping("/getAgedReturn")
+    public Result<List<agedReturnDashboardVO>> getAgedReturnDashboard(@RequestParam int flagChache){
+        boolean flag = flagChache == 1?true:false;
+        List<agedReturnDashboardVO> result = null;
+        try {
+            result = returnSearchService.getAgedReturnDashboard(flag);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Result.success(result);
     }
 
 

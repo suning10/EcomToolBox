@@ -3,6 +3,7 @@ package com.ecom.mapper.mysql;
 import com.ecom.pojo.dto.SearchByRDODTO;
 import com.ecom.pojo.entity.Return;
 import com.ecom.pojo.entity.ReturnSimple;
+import com.ecom.pojo.entity.agedReturnNerp;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
 
@@ -35,4 +36,6 @@ public interface ReturnMapper {
 
     @Update("INSERT INTO return_search_simple SELECT  * from stg_return_search_simple on duplicate key UPDATE return_search_simple.tracking_number = stg_return_search_simple.tracking_number;")
     void loadDataReturnSearch();
+
+    List<agedReturnNerp> getAgedReturnNERP();
 }
