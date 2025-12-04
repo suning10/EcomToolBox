@@ -129,7 +129,7 @@ public class AgedReturnTask {
 
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-                emailService.sendEmail("l.qin3@partner.sea.samsung.com","Aged Return Dashboard For " + LocalDateTime.now().format(formatter),html.toString(),attachments);
+                emailService.sendEmail("eCommTeam@sea.samsung.com","Aged Return Dashboard For " + LocalDateTime.now().format(formatter),html.toString(),attachments);
             } catch (MessagingException e) {
                 throw new RuntimeException(e);
             } catch (UnsupportedEncodingException e) {

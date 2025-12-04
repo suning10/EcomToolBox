@@ -26,5 +26,6 @@ public class EDDOTDDetail implements Serializable {
     private String shipDateTs;
     private String promisedShipDt;
     private String fulfillmentCarrierId;
+    private String serviceLevel;
     private String shipmentStatus;
 }

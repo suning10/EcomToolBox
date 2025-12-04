@@ -80,6 +80,7 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
         returnMapper.updateReturnMaster();
         returnMapper.loadDataInline(path);
 
+
     }
 
     @Override
@@ -129,7 +130,11 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
 
         //get rdo list
         List<String> rdoList = new ArrayList<>();
-        nerp.stream().forEach(a -> rdoList.add(a.getDO()));
+        nerp.stream().forEach(a -> {
+            if(!rdoList.contains(a.getDO())) rdoList.add(a.getDO());
+        } );
+
+
         if(rdoList.size() == 0) return null;
         //change rdoList to hash
         MessageDigest md = MessageDigest.getInstance("SHA-256");

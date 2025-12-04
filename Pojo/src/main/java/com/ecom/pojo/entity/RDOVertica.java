@@ -13,6 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class RDOVertica implements Serializable {
 
+    private String lineItemId;
     private String poId;
     private String soId;
     private String odo;

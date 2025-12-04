@@ -285,6 +285,7 @@
             foli.ship_date_ts::date,
             v.promised_ship_dt,
             foli.fulfillment_carrier_id,
+            case when foli.carrier_service_name = '' then 'U2' else foli.carrier_service_name  as service_level,
             shipment_status
         from edw.fact_order_line_items foli
             left join edw.fact_fulfillment_edd_v4 v
