@@ -69,7 +69,7 @@
     </select>
     <select id="getAgedReturnNERP" resultType="com.ecom.pojo.entity.agedReturnNerp">
         SELECT
-            bol,po,`do` as `DO`,material,qty,rdd,planned_gi,sloc,document_date,delivery_qty,reference_doc,createdby,
+            bol,po,`do` as `DO`,material,qty,rdd,planned_gi,sloc,document_date,delivery_qty,reference_doc,createdby,sold_to,
             datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) as aged_days,
             case when
                      datediff(current_date(),str_to_date(document_date,'%m/%d/%Y')) between 0 and 15

@@ -29,6 +29,7 @@ public class agedReturnNerp implements Serializable {
     private int agedDays;
     private String agedBucket;
     private String flagRefusal;
+    private String soldTo;
 
 
 }
