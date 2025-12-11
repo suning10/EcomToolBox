@@ -15,6 +15,7 @@ public class RDOVertica implements Serializable {
 
     private String lineItemId;
     private String poId;
+    private String rmaNumber;
     private String soId;
     private String odo;
     private String rdo;

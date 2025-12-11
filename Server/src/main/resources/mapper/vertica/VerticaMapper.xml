@@ -200,6 +200,7 @@
         select
         fr.po_id ,
         frsl.so_id,
+        fr.rma_number ,
         forward_do_id as odo,
         frsl.do_id as rdo,
         sku,
@@ -239,6 +240,12 @@
         </if>
         <if test="flag == 1">
             and frsl.do_id in
+            <foreach collection="ids"  separator="," open="(" close=")" item="id" >
+                #{id}
+            </foreach>
+        </if>
+        <if test="flag == 2">
+            and fr.rma_number  in
             <foreach collection="ids"  separator="," open="(" close=")" item="id" >
                 #{id}
             </foreach>

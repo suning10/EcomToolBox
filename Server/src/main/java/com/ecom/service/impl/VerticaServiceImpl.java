@@ -144,6 +144,8 @@ public class VerticaServiceImpl implements VerticaService {
 
         if(rdoDto.getSearchFlag().equals("RDO")) return verticaMapper.queryRDO(rdoDto.getIdList(),1);
 
+        if(rdoDto.getSearchFlag().equals("RMA")) return verticaMapper.queryRDO(rdoDto.getIdList(),2);
+
         return null;
     }
 

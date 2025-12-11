@@ -14,6 +14,7 @@ public class RDOVerticaDTO implements Serializable{
     /*
     1. rdo
     2. po
+    3. RMA
      */
     private String searchFlag;
 
