@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 8080
   tomcat:
     max-swallow-size: 100MB
   address: 0.0.0.0
@@ -32,6 +32,10 @@ spring:
     host: m.sea.samsung.com
     port: 25
     auth: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+
 
 mybatis:
   #mapper????
@@ -71,5 +75,10 @@ ecom:
       - m.pavlou@sea.samsung.com
       - charles1.k@sea.samsung.com
       - n.doan@sea.samsung.com
+
+  rabbitmq:
+    queue: toolbox-request
+    exchange: toolbox-exchange
+    routing-key: toolbox.key
 
 
