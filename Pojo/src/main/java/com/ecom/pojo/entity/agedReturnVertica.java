@@ -30,4 +30,5 @@ public class agedReturnVertica implements Serializable {
     private String statusDetailDescription;
     private String statusDetailTs;
     private String scanStatus;
+    private String rma;
 }

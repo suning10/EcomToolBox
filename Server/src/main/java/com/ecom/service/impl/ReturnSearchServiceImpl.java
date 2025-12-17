@@ -128,35 +128,60 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
         //query NERP data
         List<agedReturnNerp> nerp =  returnMapper.getAgedReturnNERP();
 
-        //get rdo list
+        //get rdo list - non-tiktok
         List<String> rdoList = new ArrayList<>();
+        HashSet<String> rdoListTiktok = new HashSet<>();
         nerp.stream().forEach(a -> {
-            if(!rdoList.contains(a.getDO())) rdoList.add(a.getDO());
+            if(a.getSoldTo().substring(0,7).equals("7072362") && !rdoListTiktok.contains(a.getDO())) {
+                rdoListTiktok.add(a.getDO());
+                return;
+            }
+            if(!rdoList.contains(a.getDO())) {
+                rdoList.add(a.getDO());
+            }
+
         } );
+        List<String> listRDOTiktok = rdoListTiktok.stream().toList();
 
 
-        if(rdoList.size() == 0) return null;
+        if(rdoList.size() == 0 && rdoListTiktok.size() == 0) return null;
         //change rdoList to hash
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         String key = Base64.getEncoder().encodeToString(md.digest(String.join(":",rdoList).getBytes()));
+        //get rma from vertica for tiktok
+        String keyTiktok = Base64.getEncoder().encodeToString(md.digest(String.join(":",rdoListTiktok).getBytes()));
         List<agedReturnVertica> vertica;
+        List<agedReturnVerticaTikTok> verticaTikToks = null;
         //force to query?
         if(flagCache){
             vertica = verticaMapper.queryAgedReturnDashboard(rdoList);
+            verticaTikToks = verticaMapper.queryAgedReturnDashboardTiktok(listRDOTiktok);
         }
         else {
-            if(redisTemplate.hasKey(key)){
+            if(redisTemplate.hasKey(key) && redisTemplate.hasKey(keyTiktok)){
                 //check if key in Redis
                 vertica = (List<agedReturnVertica>)redisTemplate.opsForValue().get(key);
+                if(rdoListTiktok.size() != 0) {
+                    verticaTikToks = (List<agedReturnVerticaTikTok>)redisTemplate.opsForValue().get(keyTiktok);
+                }
+
             }
 
             else{
                 //query Vertica DB
                 vertica =  verticaMapper.queryAgedReturnDashboard(rdoList);
+
+                if(rdoListTiktok.size() != 0){
+                    verticaTikToks = verticaMapper.queryAgedReturnDashboardTiktok(listRDOTiktok);
+                    redisTemplate.opsForValue().set(keyTiktok,verticaTikToks,2,TimeUnit.HOURS);
+                }
                 //store in Redis and ttl = 2 hours
                 redisTemplate.opsForValue().set(key,vertica,2, TimeUnit.HOURS);
+
             }
         }
+
+
 
 
 
@@ -165,6 +190,11 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
         //put into a hashmap
         HashMap<String,agedReturnVertica> map = new HashMap<>();
         vertica.stream().forEach(a -> map.put(a.getRdo() + a.getSku(), a));
+        HashMap<String,String> mapTiktok = new HashMap<>();
+        if(verticaTikToks != null && verticaTikToks.size() > 0){
+            verticaTikToks.forEach(a -> mapTiktok.put(a.getRdo(),a.getRma()));
+        }
+
         //create vo List
         List<agedReturnDashboardVO> result = new ArrayList<>();
         nerp.stream().forEach(
@@ -182,8 +212,16 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
                         return;
                     }
 
+                    if(a.getSoldTo().substring(0,7).equals("7072362")) {
+                        cur.setScanStatus("Tiktok Order");
+                        cur.setRma(mapTiktok.getOrDefault(a.getDO(),""));
+                        result.add(cur);
+                        return;
+
+                    }
+
                     if(verticaResult.getRdo() != ""){
-                        if(verticaResult.getStatusDetailTs() == null) scanStatus = "No Scan";
+                        if(verticaResult.getStatusDetailTs() == null ) scanStatus = "No Scan";
                         else{
                             //System.out.println(verticaResult.getRdo());
                             //System.out.println(verticaResult.getStatusDetailTs());
@@ -210,6 +248,8 @@ public class ReturnSearchServiceImpl implements ReturnSearchService {
                     result.add(cur);
                 }
         );
+
+
         return result;
     }
 
