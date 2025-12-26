@@ -21,7 +21,7 @@ spring:
       jdbcUrl: ${ecom.datasource.vertica.url}
       username: ${ecom.datasource.vertica.username}
       #password: ${ecom.datasource.vertica.password}
-      password: l8e9#csZFwb
+      password: lnkhUaEf!30
     hikari:
       maximum-pool-size: 2
   servlet:

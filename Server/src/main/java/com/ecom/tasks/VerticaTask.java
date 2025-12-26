@@ -30,6 +30,7 @@ public class VerticaTask {
     public void otdSummary() throws MessagingException, UnsupportedEncodingException {
 
         List<EDDOTDDetail> detail =  verticaService.queryOTDDetailYesterday();
+        if(detail.size() == 0) return;
         List<EDDSummary> summary =  verticaService.queryOTD();
         List<EDDCarrierSummary> summaryCarrier =  verticaService.queryOTDByCarrier();
         List<EDDCarrierSummary> summaryCarrierwoEDD =  verticaService.queryOTDSummaryByCarrier();
@@ -78,6 +79,7 @@ public class VerticaTask {
 
         for (EDDSummary eddSummary:summary
         ) {
+
             html.append("<tr>");
             html.append("<td>" + eddSummary.getEdd() + "</td>" +
                     "<td>" + eddSummary.getCntMiss() + "</td>" +
