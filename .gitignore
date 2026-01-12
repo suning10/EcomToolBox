@@ -3,7 +3,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-!**/src/test/
 
 ### STS ###
 .apt_generated
@@ -38,3 +37,5 @@ build/
 /Server/src/main/resources/application-test.yml
 /Server/src/main/resources/application-vertica.yml
 /vertica-jdbc-9.1.1-0.jar
+/Server/src/test/
+
