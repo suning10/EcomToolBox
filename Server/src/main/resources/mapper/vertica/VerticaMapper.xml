@@ -375,6 +375,7 @@
             frsl.so_id,
             forward_do_id as odo,
             frsl.do_id as rdo,
+            fr.rma_number as rma,
             sku,
             frsl.quantity,
             fr.refund_status ,
@@ -413,5 +414,19 @@
                 #{id}
             </foreach>
         and foli.product_type = 'physical';
+    </select>
+    <select id="queryAgedReturnDashboardTiktok" resultType="com.ecom.pojo.entity.agedReturnVerticaTikTok">
+        select frsl.do_id as rdo,
+               frsl.rma_id as rma
+        from edw.fact_return_so_line_item frsl
+        where frsl.is_active  = 1
+        and
+        frsl.do_id in
+
+        <foreach collection="list"  separator="," open="(" close=")" item="id" >
+            #{id}
+        </foreach>
+
+
     </select>
 </mapper>

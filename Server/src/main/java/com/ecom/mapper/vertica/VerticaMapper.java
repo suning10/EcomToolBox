@@ -53,4 +53,6 @@ public interface VerticaMapper {
 
 
     List<agedReturnVertica> queryAgedReturnDashboard(@Param("rdoList")List<String> rdoList);
+
+    List<agedReturnVerticaTikTok> queryAgedReturnDashboardTiktok(@Param("list")List<String> list);
 }
