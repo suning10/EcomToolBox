@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class EmailListrProperties {
 
     private String[] cstock;
+    private String[] ageReturn;
 
 //    //public String[] getCStockEmailList(){
 //        return this.cstock.split(",");
