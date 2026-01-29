@@ -228,6 +228,7 @@
         foli.po_id = fpol.po_id and foli.shipped_sku = frsl.sku
         where
         fr.is_active = 1
+        and fr.rma_number != -1
         and frsl.is_active = 1
         and fpol.is_active = 1
         and foli.is_active = 1
@@ -372,7 +373,7 @@
     <select id="queryAgedReturnDashboard" resultType="com.ecom.pojo.entity.agedReturnVertica">
         select
             fr.po_id ,
-            frsl.so_id,
+            frsl.so_id as return_so,
             forward_do_id as odo,
             frsl.do_id as rdo,
             fr.rma_number as rma,
@@ -402,13 +403,16 @@
                       on fpol.return_request_id = frsl.return_request_id and fpol.model_code = frsl.sku
                  join edw.fact_order_line_items foli on
             foli.po_id = fpol.po_id and foli.shipped_sku = frsl.sku
-                 left join edw.fact_fedex_shipment_tracking_v4 fdx on fdx.tracking_id = fr.return_tracking_id
+                 left join
+                    (select * from
+                        edw.fact_fedex_shipment_tracking_v4 where is_active = 1) fdx
+                on fdx.tracking_id = fr.return_tracking_id
         where
             fr.is_active = 1
           and frsl.is_active = 1
           and fpol.is_active = 1
           and foli.is_active = 1
-          and fdx.is_active = 1
+          and fr.rma_number != -1
           and frsl.do_id in
             <foreach collection="rdoList"  separator="," open="(" close=")" item="id" >
                 #{id}
