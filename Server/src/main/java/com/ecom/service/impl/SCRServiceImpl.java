@@ -151,7 +151,7 @@ public class SCRServiceImpl implements SCRService {
     @Override
     public List<ScrReportGap> queryScrReportGap(String date, String sloc) {
 
-        if(sloc == "WR2E"){
+        if(sloc.equals("WR2E")){
             return scrMapper.getSCRReportGapWR2E(date,"WR2E");
         }
         else{
@@ -161,7 +161,7 @@ public class SCRServiceImpl implements SCRService {
 
     @Override
     public List<ScrReportRaw> queryScrReportDetail(String date, String sloc) {
-        if(sloc == "WR2E"){
+        if(sloc.equals("WR2E")){
             return scrMapper.getSCRReportDetailWR2E(date,"WR2E");
         }
         else{

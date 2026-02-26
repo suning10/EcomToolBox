@@ -37,7 +37,7 @@
 
     <select id="getMinQty" resultType="com.ecom.pojo.entity.MinCStock">
         select b.item,
-               least(ifnull(a.qty,0),b.qty) as min_qty,c.category,ifnull(c.description, b.description) as `description`
+               least(ifnull(a.qty,0) + 0,b.qty + 0) as min_qty,c.category,ifnull(c.description, b.description) as `description`
         from location_nerp a
                  right join
              (select item, description,sum(quantity) as qty
