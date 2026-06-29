@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ecom.mapper.ReturnHybrisMapper">
+    <insert id="insertrdoList">
+        insert into rdoList values 
+        <foreach collection="rdos"  separator="," item="rdo" >
+            (#{rdo})
+        </foreach>
+        
+    </insert>
+    <update id="truncateTempRDOTable">
+        truncate table rdoList
+    </update>
+
+    <update id="createTempRDOTable">
+        CREATE temporary TABLE IF NOT EXISTS `rdoList` (
+            rdo varchar(30)
+            )
+    </update>
+    <update id="loadDataInline">
+        LOAD DATA local INFILE
+        #{path}
+        INTO TABLE `return_master`
+        FIELDS TERMINATED BY ','  ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE 1 LINES;
+
+    </update>
+    <update id="updateReturnMaster">
+        insert into return_hybris
+        select * from stg_return_hybris;
+    </update>
+
+    <update id="updateStgTable">
+        LOAD DATA local INFILE
+        #{path}
+        INTO TABLE ${tableName}
+        FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE #{skip} LINES;
+    </update>
+
+
+    <select id="searchByRDO" resultType="com.ecom.pojo.entity.Return">
+
+        select po_lookup_key,rdo_id,return_tracking_id,tracking_id,Sku,rma_number,
+               so_id,po_Id,rso_id,Channel,current_refund_status,
+               label_generated_ts,refund_dt
+        from return_master
+        join rdoList
+        on return_master.rdo_id = rdoList.rdo
+    </select>
+    <select id="getHybrisReturn" resultType="com.ecom.pojo.dto.HybrisReturnDTO">
+
+        select return_hybris.* from rdoList
+        join return_hybris on
+        rdoList.rdo = return_hybris.po_id
+    </select>
+
+</mapper>

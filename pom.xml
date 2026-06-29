@@ -16,6 +16,7 @@
         <module>Common</module>
         <module>Pojo</module>
         <module>Server</module>
+        <module>server-hybris</module>
     </modules>
     <name>ecomToolbox</name>
     <description>ecomToolbox</description>
