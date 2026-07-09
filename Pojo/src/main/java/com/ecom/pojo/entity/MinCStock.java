@@ -18,6 +18,7 @@ public class MinCStock implements Serializable {
     private String minQty;
     private String category;
     private String description;
+    private String creationDate;
 
     public void setMinQty(String minQty){
         this.minQty =  minQty != null ? minQty.trim() : null;

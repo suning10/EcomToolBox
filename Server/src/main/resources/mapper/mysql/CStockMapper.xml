@@ -7,7 +7,7 @@
     </insert>
     <insert id="insertSynapse">
         insert into location
-        select location, item, description, inv_status, quantity
+        select location, item, description, inv_status, quantity, SUBSTRING_INDEX(creation_date, ' ', 1)
         from stg_location
         where inv_status = 'CP'
           and (left(location,1) ='1' or left(location,1) ='0');
@@ -37,10 +37,10 @@
 
     <select id="getMinQty" resultType="com.ecom.pojo.entity.MinCStock">
         select b.item,
-               least(ifnull(a.qty,0) + 0,b.qty + 0) as min_qty,c.category,ifnull(c.description, b.description) as `description`
+               least(ifnull(a.qty,0) + 0,b.qty + 0) as min_qty,c.category,ifnull(c.description, b.description) as `description`,max_creation as creation_date
         from location_nerp a
                  right join
-             (select item, description,sum(quantity) as qty
+             (select item, description,sum(quantity) as qty, max(creation_date) as max_creation
               from location
               group by item,description) b
              on a.sku = b.item
