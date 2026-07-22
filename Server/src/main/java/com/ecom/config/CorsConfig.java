@@ -10,6 +10,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 
@@ -34,10 +36,13 @@ public class CorsConfig implements WebMvcConfigurer {
     }
 
     public void addInterceptors(InterceptorRegistry interceptorRegistry){
-
+        List<String> excludePath = new ArrayList<>();
+        excludePath.add("/admin/user/login");
+        excludePath.add("/admin/ai/**");
         interceptorRegistry.addInterceptor(jwtTokenInterceptor)
                 .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/user/login")
-                .excludePathPatterns("/admin/kpi/**");
+                //.excludePathPatterns("/admin/user/login")
+                .excludePathPatterns(excludePath);
+                //.excludePathPatterns("/admin/kpi/**");
     }
 }

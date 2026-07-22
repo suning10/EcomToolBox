@@ -1,0 +1,377 @@
+package com.ecom.controller;
+
+
+import com.ecom.common.enumeration.UploadStatus;
+import com.ecom.common.result.Result;
+import com.ecom.common.utils.LocalFolderUtil;
+import com.ecom.common.utils.exportToCSVUtil;
+import com.ecom.pojo.dto.SKUSearchDTO;
+import com.ecom.pojo.dto.SearchByRDODTO;
+import com.ecom.pojo.dto.skuCategoryDTO;
+import com.ecom.pojo.entity.*;
+import com.ecom.pojo.vo.MinCStockSummaryVO;
+import com.ecom.pojo.vo.SKUSummaryByMvmTypeVO;
+import com.ecom.pojo.vo.agedReturnDashboardVO;
+import com.ecom.service.AIService;
+import com.ecom.service.CStockService;
+import com.ecom.service.ReturnSearchService;
+import com.ecom.service.SCRService;
+import com.ecom.service.impl.EmailServiceImpl;
+import com.ecom.service.impl.SCRAsyncTaskImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+@RestController
+@RequestMapping("admin/ai")
+@Tag(name = "AI")
+@Slf4j
+public class AIController {
+    /**
+     *  collection of all get requests
+     *  C Stock
+     *  SCRs
+     *  Returns
+     */
+    @Autowired
+    private CStockService cStockService;
+    @Autowired
+    private ReturnSearchService returnSearchService;
+    @Autowired
+    private SCRService scrService;
+    @Autowired
+    SCRAsyncTaskImpl scrAsyncTask;
+    @Autowired
+    private EmailServiceImpl emailService;
+    @Autowired
+    private AIService aiService;
+
+
+    /**
+     * Call Fast API
+     */
+
+    @PostMapping("")
+    public AIResponse sendChatMessage(@RequestBody AIChatRequest aiChatRequest){
+        AIResponse response =  aiService.sendChat(aiChatRequest);
+        return response;
+    }
+
+
+    /**
+        CStock
+     */
+    @GetMapping("/minQty")
+    public Result<List<MinCStock>> getMinQty(){
+        List<MinCStock> result = cStockService.getMinQtyCStock();
+        return Result.success(result);
+    }
+    @GetMapping("/minQtySummary")
+    public Result<List<MinCStockSummaryVO>> getMinQtySummary(){
+        List<MinCStockSummaryVO> result = cStockService.getMinQtyCStockSummary();
+        return Result.success(result);
+    }
+    @PostMapping("/uploadSKUCategory")
+    public Result uploadSKUCategory(@RequestBody List<skuCategoryDTO> skuCategoryDTOS){
+        cStockService.uploadSKUCategory(skuCategoryDTOS);
+        return Result.success();
+    }
+    @GetMapping("/getSKUCategory")
+    public Result<List<skuCategoryDTO>> getSKUCategory(){
+        List<skuCategoryDTO> result =  cStockService.getSkuCateogy();
+        return Result.success(result);
+    }
+    @GetMapping("/getSKUCategoryBySKU")
+    public Result<skuCategoryDTO> getSKUCategoryBySku(@RequestParam String sku){
+        skuCategoryDTO result =  cStockService.getSkuCateogyBYSKU(sku);
+        return Result.success(result);
+    }
+
+    /**
+     * Returns
+     */
+    @PostMapping("/byRDO")
+    public Result<List<Return>> searchByRDO(@RequestBody SearchByRDODTO searchByRDODTO){
+        List<Return> returnResult = returnSearchService.getByRDO(searchByRDODTO);
+        return Result.success(returnResult);
+    }
+    @PostMapping("/byPO")
+    public Result<List<Return>> searchByPO(@RequestBody SearchByRDODTO searchByRDODTO){
+        List<Return> returnResult = returnSearchService.getByPO(searchByRDODTO);
+        return Result.success(returnResult);
+    }
+    @PostMapping("/byRDOSimple")
+    public Result<List<ReturnSimple>> searchByRDOSimple(@RequestBody SearchByRDODTO searchByRDODTO){
+        List<ReturnSimple> returnResult = returnSearchService.getByRDOSimple(searchByRDODTO);
+        return Result.success(returnResult);
+    }
+    @PostMapping("/getAgedReturn")
+    public Result<List<agedReturnDashboardVO>> getAgedReturnDashboard(@RequestParam int flagChache){
+        boolean flag = flagChache == 1?true:false;
+        List<agedReturnDashboardVO> result = null;
+        try {
+            result = returnSearchService.getAgedReturnDashboard(flag);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        return Result.success(result);
+    }
+
+    /**
+     * SCR
+     */
+    /*
+    has references, joined by reference, sloc and sku
+     */
+    @PostMapping("/skuComparision")
+    @Operation(summary = "SKUComparison")
+    public Result<List<SKUComparison>> skuComparison(@RequestBody SKUSearchDTO skuSearchDTO) {
+
+        var result = scrService.querySKUComparison(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        return Result.success(result);
+    }
+
+    /*
+has references, joined by reference, sloc and sku
+ */
+    @PostMapping("/skuComparisionAll")
+    @Operation(summary = "SKUComparisonAll")
+    public Result<List<SKUComparison>> skuComparisonAll(@RequestBody SKUSearchDTO skuSearchDTO) {
+
+        List<SKUComparison> result = scrService.querySKUComparisonAll(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        return Result.success(result);
+    }
+
+    /*
+        has references, joined by reference, sloc and sku
+        no reference in item activity
+    */
+    @PostMapping("/skuComparisionMissingNerp")
+    @Operation(summary = "SKUComparisonNERP")
+    public Result<List<SKUActivityNERP>> skuComparisonMissingNerp(@RequestBody SKUSearchDTO skuSearchDTO) {
+        List<SKUActivityNERP> result;
+        if(skuSearchDTO.getSloc().toLowerCase().equals("all")) {
+            result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        }
+        else{
+            result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        }
+        return Result.success(result);
+    }
+
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in NERP
+*/
+    @PostMapping("/skuComparisionMissingItemActivity")
+    @Operation(summary = "SKUComparisonItemActivity")
+    public Result<List<SKUActivitySynapse>> skuComparisonMissingItemActivity(@RequestBody SKUSearchDTO skuSearchDTO) {
+        List<SKUActivitySynapse> result ;
+        if(skuSearchDTO.getSloc().toLowerCase().equals("all")) {
+            result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        }
+        else{
+            result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getSku(),skuSearchDTO.getStart(),skuSearchDTO.getEnd(),skuSearchDTO.getSloc());
+        }
+        return Result.success(result);
+    }
+
+    /*
+    no reference, adjustment, show by SKU , nerp
+     */
+    @PostMapping("/skuDetailNERPAdj")
+    @Operation(summary = "SKUDetailNERPAdj")
+    public Result<List<SKUActivityNERP>> skuDetailNERPAdj(@RequestBody SKUSearchDTO skuSearchDTO) {
+
+        List<SKUActivityNERP> result = scrService.querySKUDetailNERPAdj(skuSearchDTO);
+        return Result.success(result);
+    }
+
+    /*
+    no reference, adjustment, show by SKU, item activity
+     */
+    @PostMapping("/skuDetailSynapseAdj")
+    @Operation(summary = "SKUDetailSynapseAdj")
+    public Result<List<SKUActivitySynapse>> skuDetailSynapseAdj(@RequestBody SKUSearchDTO skuSearchDTO) {
+        List<SKUActivitySynapse> result = scrService.querySKUDetailSynapseAdj(skuSearchDTO);
+        return Result.success(result);
+    }
+
+    /*
+    no reference, adjustment, total qty , item activity
+     */
+    @PostMapping("/skuSummarySynapseAdj")
+    @Operation(summary = "SKUDetailSynapseAdj")
+    public Result<SKUSummaryByMvmTypeVO> skuSummarySynapseAdj(@RequestBody SKUSearchDTO skuSearchDTO) {
+        SKUSummaryByMvmTypeVO result = scrService.querySKUSummarySynapseAdj(skuSearchDTO);
+        return Result.success(result);
+    }
+
+    /*
+    no reference, adjustment, total qty , nerp
+     */
+    @PostMapping("/skuSummaryNERPAdj")
+    @Operation(summary = "SKUDetailNERPAdj")
+    public Result<SKUSummaryByMvmTypeVO> skuSummaryNERPAdj(@RequestBody SKUSearchDTO skuSearchDTO) {
+        SKUSummaryByMvmTypeVO result = scrService.querySKUSummaryNERPAdj(skuSearchDTO);
+        return Result.success(result);
+    }
+
+    /*
+        SCR Report Summary all
+     */
+    @GetMapping("/scrReportSummary")
+    @Operation(summary = "SKUReportSummary")
+    public Result<List<ScrReportSummary>> skuReportSummary(@RequestParam String date) {
+        List<ScrReportSummary> result = scrService.queryScrReportSummary(date);
+        return Result.success(result);
+    }
+
+    /*
+    SCR Report gap
+ */
+    @GetMapping("/scrReportGap")
+    @Operation(summary = "SKUReportGap")
+    public Result<List<ScrReportGap>> skuReportGap(@RequestParam String date, @RequestParam String sloc) {
+        List<ScrReportGap> result = scrService.queryScrReportGap(date,sloc);
+        return Result.success(result);
+    }
+
+    /*
+    SCR Report Detail
+    */
+    @GetMapping("/scrReportDetail")
+    @Operation(summary = "SKUReportDetail")
+    public Result<List<ScrReportRaw>> skuReportDetail(@RequestParam String date, @RequestParam String sloc) {
+        List<ScrReportRaw> result = scrService.queryScrReportDetail(date,sloc);
+        return Result.success(result);
+    }
+
+    /*
+        SCR Report DOD
+    */
+    @GetMapping("/scrReportDOD")
+    @Operation(summary = "scrReportDOD")
+    public Result<List<ScrReportDod>> skuReportDOD(@RequestParam String sloc) {
+        List<ScrReportDod> result = scrService.queryScrReportDOD(sloc);
+        return Result.success(result);
+    }
+
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in item activity
+*/
+    @PostMapping("/skuComparisionMissingNerpAll")
+    @Operation(summary = "SKUComparisonNERPAll")
+    public Result<List<SKUActivityNERP>> skuComparisonMissingNerpEmail(@RequestBody SKUSearchDTO skuSearchDTO) {
+        List<SKUActivityNERP> result;
+        result = scrService.querySKUComparisonMissingNerp(skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        return Result.success(result);
+    }
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in NERP
+*/
+    @PostMapping("/skuComparisionMissingItemActivityAll")
+    @Operation(summary = "SKUComparisonItemActivityALL")
+    public Result<List<SKUActivitySynapse>> skuComparisonMissingItemActivityEmail(@RequestBody SKUSearchDTO skuSearchDTO) {
+
+        List<SKUActivitySynapse> result ;
+        result = scrService.querySKUComparisonMissingSynapse(skuSearchDTO.getStart(),skuSearchDTO.getEnd());
+        return Result.success(result);
+    }
+
+    /*
+    has references, joined by reference, sloc and sku
+    no reference in NERP
+    */
+    @GetMapping("/dodResearch")
+    @Operation(summary = "DODResearch")
+    public Result<List<DODSearch>> dodResearch (@RequestParam String material, @RequestParam String sloc) {
+
+        List<DODSearch> result ;
+        result = scrService.queryDodBySku(material,sloc);
+        return Result.success(result);
+    }
+
+    /*
+        has references, joined by reference, sloc and sku
+        no reference in NERP
+     */
+    @GetMapping("/getLatestResearchDate")
+    @Operation(summary = "LatestResearchDate")
+    public Result<String> getLatestResearchDay () {
+
+        String resultNERP = scrService.queryMaxDateNerp();
+        String resultIA = scrService.queryMaxDateSynapse();
+        String result = "NERP is updated to " +resultNERP + ", SYnapse is updated to " + resultIA;
+        return Result.success(result);
+    }
+    /*
+        all missing transactions
+        nerp has it but synapse do not
+        return a nerp transaction
+    */
+    @GetMapping("/missingTransaction")
+    @Operation(summary = "missingTransactionSynapse")
+    public Result getMissingTransaction(@RequestParam String start, @RequestParam String end,@RequestParam String email) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        List<String> pathStringList = new ArrayList<>();
+        String file1 = "C:\\Users\\l.qin3\\Documents\\scheduled\\Synpase" + LocalDateTime.now().format(formatter).toString() +".csv";
+        String file2 = "C:\\Users\\l.qin3\\Documents\\scheduled\\Nerp"+ LocalDateTime.now().format(formatter).toString() + ".csv";
+        CompletableFuture task1 = scrAsyncTask.findMissingTransactionNERP(start,end).
+                thenAccept(result -> exportToCSVUtil.writeToCsv(file1,result));
+        CompletableFuture task2 = scrAsyncTask.findMissingTransactionSynapse(start,end).
+                thenAccept(result -> exportToCSVUtil.writeToCsv(file2,result));
+
+        CompletableFuture<Void> tasks = CompletableFuture.allOf(task1,task2);
+        tasks.thenRun(()->{
+            try {
+                int cnt = 0;
+                if(LocalFolderUtil.fileExists(file1)) {
+                    pathStringList.add(file1);
+                    cnt++;
+                }
+                if(LocalFolderUtil.fileExists(file2)) {
+                    pathStringList.add(file2);
+                    cnt++;
+                }
+                if(cnt != 0) emailService.sendEmail(email,"Your Scheduled File is Ready for " + start + " to " + end  ,"Please see attached for Missing Transactions",pathStringList);
+                else  emailService.sendEmail(email,"Your Scheduled File is Ready - No Missing Transaction has been found for "  + start + " to " + end ,"At" + LocalDateTime.now());
+
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }).thenRun(()->{
+            // delete the file being exported
+            LocalFolderUtil.deleteFile(file1);
+            LocalFolderUtil.deleteFile(file2);
+        });
+
+        return Result.success();
+    }
+
+    @GetMapping("/getSCRTrend")
+    @Operation(summary = "SCRTrend")
+    public Result<List<SCRTrend>> getSCRTrend (@RequestParam String start, @RequestParam String end) {
+
+        List<SCRTrend> result = scrService.querySCRTrend(start, end);
+
+        return Result.success(result);
+    }
+}
