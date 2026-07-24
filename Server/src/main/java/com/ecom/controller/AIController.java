@@ -24,6 +24,7 @@ import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
@@ -66,8 +67,20 @@ public class AIController {
      */
 
     @PostMapping(value = "", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> sendChatMessage(@RequestBody AIChatRequest aiChatRequest){
+    public Flux<ServerSentEvent<String>> sendChatMessage(@RequestBody AIChatRequest aiChatRequest){
         return aiService.sendChat(aiChatRequest);
+    }
+
+    @GetMapping("/chat/sessions")
+    public Result<List<AIChatSessionRead>> getChatSessions(){
+        List<AIChatSessionRead> result = aiService.getChatSessions();
+        return Result.success(result);
+    }
+
+    @GetMapping("/chat/sessions/{sessionId}/messages")
+    public Result<AIChatSessionMessages> getChatSessionMessages(@PathVariable String sessionId){
+        AIChatSessionMessages result = aiService.getChatSessionMessages(sessionId);
+        return Result.success(result);
     }
 
 

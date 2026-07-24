@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AIChatRequest {
     private String message;
+    private String session_id;
     @Builder.Default
-    private String session_id = "";
+    private boolean include_reasoning = false;
 }
