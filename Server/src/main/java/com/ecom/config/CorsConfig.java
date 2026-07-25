@@ -3,8 +3,11 @@ package com.ecom.config;
 import com.ecom.interceptor.JwtTokenInterceptor;
 import com.github.pagehelper.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,6 +23,16 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Autowired
     private JwtTokenInterceptor jwtTokenInterceptor;
+
+    @Autowired
+    @Qualifier("sseTaskExecutor")
+    private AsyncTaskExecutor sseTaskExecutor;
+
+    @Override
+    public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+        configurer.setTaskExecutor(sseTaskExecutor);
+    }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         CorsRegistration corsRegistration = registry.addMapping("/**");
